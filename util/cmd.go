@@ -37,7 +37,7 @@ func ParseArgs() Flags {
 	fs.BoolVar(&flags.Verbose, "v", false, "in addition to the solution also print the day number, the part number and the time taken to run")
 	fs.BoolVar(&flags.All, "a", false, "run solutions for all days and parts. day and part arguments are ignored, and -v is implied, if this is specified. inputFile is ignored and the default location for it is used for each day")
 
-	fs.BoolVar(&flags.DownloadInput, "d", false, "downloads the problem input. if -s is not specicified, attempts to read cookie from cookie.txt in the current directory, and if that fails from Chrome browser user cookie file in the default location. Download is skipped if the file already exists")
+	fs.BoolVar(&flags.DownloadInput, "d", false, "downloads the problem input. if -s is not specicified, attempts to read cookie from cookie.txt in the current directory, and if that fails from Chrome browser user cookie file in the default location. CHROME_COOKIES_PATH environment variable can be used to specify non-default location. Download is skipped if the file already exists")
 	fs.BoolVar(&flags.PrintSessionCooike, "q", false, "prints out session cookie from Chrome browser user cookie file in the default location. If this is specified, all other arguments and flags are ignored")
 
 	fs.StringVar(&flags.InputFile, "i", "", fmt.Sprintf("path to the problem input `/path/to/input.txt`. If not specified defaults to '%s', where XX is the day selected", filepath.FromSlash("dayXX/input.txt")))

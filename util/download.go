@@ -33,8 +33,8 @@ const cookieTemplate = `{
 var normalMode = os.FileMode(0644)
 
 func chromeCookiePath() (string, error) {
-	if p, set := os.LookupEnv("CHROME_PROFILE_PATH"); set {
-		return filepath.Join(p, "Network", "Cookies"), nil
+	if p, set := os.LookupEnv("CHROME_COOKIES_PATH"); set {
+		return p, nil
 	}
 
 	if runtime.GOOS == "windows" {
@@ -42,7 +42,12 @@ func chromeCookiePath() (string, error) {
 		return filepath.Join(localAppData, "Google", "Chrome", "User Data", "Default", "Network", "Cookies"), err
 	}
 
-	return "", fmt.Errorf("chrome cookie path for GOOS %s not implemented, set CHROME_PROFILE_PATH instead", runtime.GOOS)
+	if runtime.GOOS == "linux" {
+		config, err := os.UserConfigDir()
+		return filepath.Join(config, "google-chrome", "Default", "Cookies"), err
+	}
+
+	return "", fmt.Errorf("chrome cookie path for GOOS %s not implemented, set CHROME_COOKIES_PATH instead", runtime.GOOS)
 }
 
 func tryGetCookieFromFile() (string, error) {
@@ -58,6 +63,9 @@ func GetChromeCookie() (string, error) {
 
 	cookies, err := chrome.ReadCookies(cookiePath, kooky.Valid, kooky.Name("session"), kooky.Domain(".adventofcode.com"))
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return "", fmt.Errorf("CHROME_COOKIES_PATH can be used to set path: %v", err)
+		}
 		return "", err
 	}
 
