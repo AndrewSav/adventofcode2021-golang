@@ -18,7 +18,7 @@ func splitWtihRule(input []string, pos int, isOxy bool) []string {
 
 func toNum(s string) int {
 	if i, err := strconv.ParseInt(s, 2, 32); err != nil {
-		log.Fatalf("cannot convert strin '%s' to a binary number: %v", s, err)
+		log.Fatalf("cannot convert string '%s' to a binary number: %v", s, err)
 	} else {
 		return int(i)
 	}
