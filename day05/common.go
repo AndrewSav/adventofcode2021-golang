@@ -7,39 +7,7 @@ import (
 	"image/color"
 	"log"
 	"regexp"
-	"strconv"
-	"strings"
 )
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func toNum(s string) int {
-	if i, err := strconv.ParseInt(strings.Trim(s, " "), 10, 32); err != nil {
-		log.Fatalf("cannot convert string '%s' to a number: %v", s, err)
-	} else {
-		return int(i)
-	}
-	panic("unexpected code path")
-}
 
 func parseLine(s string) image.Rectangle {
 	r := regexp.MustCompile(`^(\d{1,3}),(\d{1,3}) -> (\d{1,3}),(\d{1,3})$`)
@@ -47,7 +15,7 @@ func parseLine(s string) image.Rectangle {
 	if rr == nil {
 		log.Fatalf("cannot parse '%s'", s)
 	}
-	return image.Rectangle{image.Point{toNum(rr[1]), toNum(rr[2])}, image.Point{toNum(rr[3]), toNum(rr[4])}}
+	return image.Rect(util.MustAtoi(rr[1]), util.MustAtoi(rr[2]), util.MustAtoi(rr[3]), util.MustAtoi(rr[4]))
 }
 
 type myImage struct {
@@ -72,7 +40,7 @@ func (img *myImage) drawOrthogonal(r image.Rectangle) {
 }
 
 func (img *myImage) drawDiagonal(r image.Rectangle) {
-	if abs(r.Min.Y-r.Max.Y) == abs(r.Min.X-r.Max.X) {
+	if util.Abs(r.Min.Y-r.Max.Y) == util.Abs(r.Min.X-r.Max.X) {
 		stepx, stepy := 1, 1
 		if r.Min.Y > r.Max.Y {
 			stepy = -1
