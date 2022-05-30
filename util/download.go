@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/zellyn/kooky"
-	"github.com/zellyn/kooky/browser/chrome"
 	"io"
 	"log"
 	"net/http"
@@ -13,6 +11,9 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/zellyn/kooky"
+	"github.com/zellyn/kooky/browser/chrome"
 )
 
 const cookieTemplate = `{
