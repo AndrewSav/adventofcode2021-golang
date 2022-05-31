@@ -1,17 +1,11 @@
 package day09
 
 import (
-	"aoc2021/util"
 	"fmt"
-	"strings"
 )
 
 func Part1(inputFile string) string {
-	lines := util.ReadInput(inputFile)
-	var data = make([][]int, len(lines))
-	for i, l := range lines {
-		data[i] = util.Atoi(strings.Split(l, ""))
-	}
+	data := getPlot(inputFile)
 	count := 0
 	for y, dd := range data {
 		for x, d := range dd {
