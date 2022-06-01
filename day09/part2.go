@@ -8,16 +8,16 @@ import (
 const boundaryColor = 9
 const fillColor = -1
 
-func (p *plot) boundaryFill(x, y, fillColor, boundaryColor int) (result int) {
+func (p plot) boundaryFill(x, y, fillColor, boundaryColor int) (result int) {
 
-	color := (*p)[y][x]
+	color := p[y][x]
 	if color != boundaryColor && color != fillColor {
-		(*p)[y][x] = fillColor
+		p[y][x] = fillColor
 		result++
-		if x < len((*p)[y])-1 {
+		if x < len(p[y])-1 {
 			result += p.boundaryFill(x+1, y, fillColor, boundaryColor)
 		}
-		if y < len((*p))-1 {
+		if y < len(p)-1 {
 			result += p.boundaryFill(x, y+1, fillColor, boundaryColor)
 		}
 		if x > 0 {
