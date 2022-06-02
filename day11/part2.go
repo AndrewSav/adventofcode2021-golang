@@ -5,11 +5,11 @@ import (
 	"fmt"
 )
 
-func Part1(inputFile string) string {
+func Part2(inputFile string) string {
 	data := octopi(util.GetPlot(inputFile))
-	count := 0
-	for i := 0; i < 100; i++ {
-		count += data.cycle()
+	target, count := len(data)*len(data[0]), 1
+	for data.cycle() != target {
+		count++
 	}
 	return fmt.Sprint(count)
 }
