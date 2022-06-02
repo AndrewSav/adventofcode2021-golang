@@ -35,3 +35,12 @@ func MustAtoi(s string) int {
 	}
 	panic("unexpected code path")
 }
+
+func GetPlot(inputFile string) [][]int {
+	lines := ReadInput(inputFile)
+	var data = make([][]int, len(lines))
+	for i, l := range lines {
+		data[i] = Atoi(strings.Split(l, ""))
+	}
+	return data
+}

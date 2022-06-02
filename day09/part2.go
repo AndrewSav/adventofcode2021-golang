@@ -1,12 +1,15 @@
 package day09
 
 import (
+	"aoc2021/util"
 	"fmt"
 	"sort"
 )
 
 const boundaryColor = 9
 const fillColor = -1
+
+type plot [][]int
 
 func (p plot) boundaryFill(x, y, fillColor, boundaryColor int) (result int) {
 
@@ -31,7 +34,7 @@ func (p plot) boundaryFill(x, y, fillColor, boundaryColor int) (result int) {
 }
 
 func Part2(inputFile string) string {
-	data := getPlot(inputFile)
+	data := plot(util.GetPlot(inputFile))
 	var results []int
 	for y, dd := range data {
 		for x := range dd {

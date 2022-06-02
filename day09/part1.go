@@ -1,11 +1,12 @@
 package day09
 
 import (
+	"aoc2021/util"
 	"fmt"
 )
 
 func Part1(inputFile string) string {
-	data := getPlot(inputFile)
+	data := util.GetPlot(inputFile)
 	count := 0
 	for y, dd := range data {
 		for x, d := range dd {
