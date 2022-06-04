@@ -1,7 +1,7 @@
 package day12
 
 func (p nodePath) CanProceed(n *node) bool {
-	_, alreadyVisited := p.lookup[n]
+	_, alreadyVisited := p.hasOnPath[n]
 	return !n.IsSmall() || !alreadyVisited
 }
 

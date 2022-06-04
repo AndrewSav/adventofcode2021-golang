@@ -17,35 +17,34 @@ func (n node) IsSmall() bool {
 }
 
 type nodePath struct {
-	array           []*node
-	lookup          map[*node]int
+	nodes           []*node
+	hasOnPath       map[*node]struct{}
 	visitedTwoSmall bool
 }
 
 func (p *nodePath) Add(n *node) {
-	if i, ok := p.lookup[n]; ok {
-		p.lookup[n] = i + 1
+	if _, ok := p.hasOnPath[n]; ok {
 		if n.IsSmall() {
 			p.visitedTwoSmall = true
 		}
 	} else {
-		p.lookup[n] = 1
+		p.hasOnPath[n] = struct{}{}
 	}
-	p.array = append(p.array, n)
+	p.nodes = append(p.nodes, n)
 }
 
 func (p nodePath) Clone() *nodePath {
-	result := &nodePath{lookup: make(map[*node]int), array: make([]*node, len(p.array))}
-	copy(result.array, p.array)
-	for k, v := range p.lookup {
-		result.lookup[k] = v
+	result := &nodePath{hasOnPath: make(map[*node]struct{}), nodes: make([]*node, len(p.nodes))}
+	copy(result.nodes, p.nodes)
+	for k, v := range p.hasOnPath {
+		result.hasOnPath[k] = v
 	}
 	result.visitedTwoSmall = p.visitedTwoSmall
 	return result
 }
 
 func newNodePath(n *node) *nodePath {
-	result := &nodePath{lookup: make(map[*node]int)}
+	result := &nodePath{hasOnPath: make(map[*node]struct{})}
 	result.Add(n)
 	return result
 }
@@ -70,7 +69,7 @@ func solve(inputFile string, canProceed func(p nodePath, n *node) bool) string {
 	for queue := []*nodePath{newNodePath(nodes["start"])}; len(queue) > 0; {
 		p := queue[0]
 		queue = queue[1:]
-		from := p.array[len(p.array)-1]
+		from := p.nodes[len(p.nodes)-1]
 		for _, to := range from.peers {
 			if !canProceed(*p, to) {
 				continue

@@ -7,7 +7,7 @@ import (
 
 func printPath(p *nodePath) {
 	result := []string{}
-	for _, n := range p.array {
+	for _, n := range p.nodes {
 		result = append(result, n.name)
 	}
 	fmt.Println(strings.Join(result, ","))
