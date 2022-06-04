@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func tick(m [9]int) (result [9]int) {
+func tick(m [9]int64) (result [9]int64) {
 	for i, n := range m {
 		if i > 0 {
 			result[i-1] += n
@@ -36,14 +36,14 @@ func tick7(m [9]int) (result [9]int) {
 func solve(inputFile string, days int) string {
 	lines := util.ReadInput(inputFile)
 	ff := util.Atoi(strings.Split(lines[0], ","))
-	m := [9]int{}
+	m := [9]int64{}
 	for _, f := range ff {
 		m[f]++
 	}
 	for i := 0; i < days; i++ {
 		m = tick(m)
 	}
-	count := 0
+	count := int64(0)
 	for _, f := range m {
 		count += f
 	}

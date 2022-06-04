@@ -8,7 +8,7 @@ import (
 	"github.com/golang-collections/collections/stack"
 )
 
-func solveInner(inputFile string) (int, int) {
+func solveInner(inputFile string) (int, int64) {
 	syntaxScores := map[rune]int{
 		')': 3,
 		']': 57,
@@ -29,7 +29,7 @@ func solveInner(inputFile string) (int, int) {
 	}
 	lines := util.ReadInput(inputFile)
 	resultSyntax := 0
-	resultsAuto := []int{}
+	resultsAuto := []int64{}
 	for _, l := range lines {
 		s := stack.New()
 		broken := false
@@ -46,14 +46,14 @@ func solveInner(inputFile string) (int, int) {
 			}
 		}
 		if !broken {
-			count := 0
+			count := int64(0)
 			for s.Len() > 0 {
-				count = count*5 + autoScores[pairs[s.Pop().(rune)]]
+				count = count*5 + int64(autoScores[pairs[s.Pop().(rune)]])
 			}
 			resultsAuto = append(resultsAuto, count)
 		}
 	}
-	sort.Ints(resultsAuto)
+	sort.Slice(resultsAuto, func(i, j int) bool { return resultsAuto[i] < resultsAuto[j] })
 	return resultSyntax, resultsAuto[len(resultsAuto)/2]
 }
 
