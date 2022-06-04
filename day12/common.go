@@ -4,7 +4,6 @@ import (
 	"aoc2021/util"
 	"fmt"
 	"strings"
-	"unicode"
 )
 
 type node struct {
@@ -13,34 +12,34 @@ type node struct {
 }
 
 func (n node) IsSmall() bool {
-	return unicode.IsLower([]rune(n.name)[0])
+	return n.name[0] > 'Z'
 }
 
 type nodePath struct {
-	nodes           []*node
+	lastNode        *node
 	hasOnPath       map[*node]struct{}
 	visitedTwoSmall bool
 }
 
 func (p *nodePath) Add(n *node) {
+	p.lastNode = n
+	if !n.IsSmall() {
+		return
+	}
 	if _, ok := p.hasOnPath[n]; ok {
-		if n.IsSmall() {
-			p.visitedTwoSmall = true
-		}
+		p.visitedTwoSmall = true
 	} else {
 		p.hasOnPath[n] = struct{}{}
 	}
-	p.nodes = append(p.nodes, n)
 }
 
 func (p nodePath) Clone() *nodePath {
-	result := &nodePath{hasOnPath: make(map[*node]struct{}), nodes: make([]*node, len(p.nodes))}
-	copy(result.nodes, p.nodes)
-	for k, v := range p.hasOnPath {
-		result.hasOnPath[k] = v
+	result := p
+	result.hasOnPath = make(map[*node]struct{})
+	for k := range p.hasOnPath {
+		result.hasOnPath[k] = struct{}{}
 	}
-	result.visitedTwoSmall = p.visitedTwoSmall
-	return result
+	return &result
 }
 
 func newNodePath(n *node) *nodePath {
@@ -52,14 +51,14 @@ func newNodePath(n *node) *nodePath {
 func solve(inputFile string, canProceed func(p nodePath, n *node) bool) string {
 	lines := util.ReadInput(inputFile)
 	nodes := make(map[string]*node)
+	addNode := func(name string) {
+		_, ok := nodes[name]
+		if !ok {
+			nodes[name] = &node{name: name}
+		}
+	}
 	for _, l := range lines {
 		parts := strings.Split(l, "-")
-		addNode := func(name string) {
-			_, ok := nodes[name]
-			if !ok {
-				nodes[name] = &node{name: name}
-			}
-		}
 		addNode(parts[0])
 		addNode(parts[1])
 		nodes[parts[0]].peers = append(nodes[parts[0]].peers, nodes[parts[1]])
@@ -69,7 +68,7 @@ func solve(inputFile string, canProceed func(p nodePath, n *node) bool) string {
 	for queue := []*nodePath{newNodePath(nodes["start"])}; len(queue) > 0; {
 		p := queue[0]
 		queue = queue[1:]
-		from := p.nodes[len(p.nodes)-1]
+		from := p.lastNode
 		for _, to := range from.peers {
 			if !canProceed(*p, to) {
 				continue
