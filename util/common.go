@@ -4,23 +4,25 @@ import (
 	"log"
 	"strconv"
 	"strings"
+
+	"golang.org/x/exp/constraints"
 )
 
-func Abs(x int) int {
+func Abs[T int | int32 | int64](x T) T {
 	if x < 0 {
 		return -x
 	}
 	return x
 }
 
-func Min(a, b int) int {
+func Min[T constraints.Ordered](a, b T) T {
 	if a < b {
 		return a
 	}
 	return b
 }
 
-func Max(a, b int) int {
+func Max[T constraints.Ordered](a, b T) T {
 	if a > b {
 		return a
 	}

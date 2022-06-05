@@ -3,7 +3,6 @@ package day14
 import (
 	"aoc2021/util"
 	"fmt"
-	"math"
 )
 
 func add(result []byte, index *int, value byte, scores map[byte]int) {
@@ -25,15 +24,7 @@ func cycle(data []byte, rules map[byte]map[byte]byte) ([]byte, int) {
 		}
 	}
 	add(result, &out, data[len(data)-1], scores)
-	min := math.MaxInt
-	max := 0
-	for _, v := range scores {
-		max = util.Max(max, v)
-		min = util.Min(min, v)
-	}
-	printScores(scores)
-	fmt.Println()
-	return result[:out], max - min
+	return result[:out], getScore(scores)
 }
 
 func Part1(inputFile string) string {
@@ -50,6 +41,6 @@ func Part1(inputFile string) string {
 	for i := 0; i < 10; i++ {
 		s, score = cycle(s, rules)
 	}
-	fmt.Println(string(s))
+
 	return fmt.Sprint(score)
 }

@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-func printScores(scores map[byte]int) {
+func printScores[T int | int64](scores map[byte]T) {
 	keys := make([]byte, 0, len(scores))
 
 	for k := range scores {
