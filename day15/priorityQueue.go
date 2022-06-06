@@ -5,7 +5,7 @@ import (
 )
 
 type vertexPQ struct {
-	level     byte
+	level     int
 	neighbors []*vertexPQ
 	priority  int
 	index     int

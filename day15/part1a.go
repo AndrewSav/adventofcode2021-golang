@@ -20,6 +20,7 @@ func add(f []vertex, v *vertex, val int) []vertex {
 	return f
 }
 
+/*
 func update(f []vertex, v *vertex, old, new int) {
 	offset := old - f[0].level
 	for i, c := range f[offset].neighbors {
@@ -31,6 +32,7 @@ func update(f []vertex, v *vertex, old, new int) {
 	}
 	add(f, v, new)
 }
+*/
 
 // https://en.wikipedia.org/wiki/Bucket_queue
 func searchBucket(data []*vertex, entry *vertex, exit *vertex) int {
@@ -49,15 +51,21 @@ func searchBucket(data []*vertex, entry *vertex, exit *vertex) int {
 		}
 		for _, v := range u.neighbors {
 			alt := dist[u] + v.level
-			if i, ok := dist[v]; !ok {
+			/*
+				if i, ok := dist[v]; !ok {
+					dist[v] = alt
+					f = add(f, v, alt)
+				} else {
+					if alt < i {
+						old := dist[v]
+						dist[v] = alt
+						update(f, v, old, alt)
+					}
+				}
+			*/
+			if i, ok := dist[v]; !ok || alt < i {
 				dist[v] = alt
 				f = add(f, v, alt)
-			} else {
-				if alt < i {
-					old := dist[v]
-					dist[v] = alt
-					update(f, v, old, alt)
-				}
 			}
 		}
 	}

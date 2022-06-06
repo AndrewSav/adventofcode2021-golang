@@ -38,7 +38,7 @@ func Part1(inputFile string) string {
 	data := make([]*vertexPQ, 0, len(lines)*len(lines[0]))
 	for y, l := range lines {
 		for x := range l {
-			v := vertexPQ{level: l[x] - "0"[0], neighbors: make([]*vertexPQ, 0)}
+			v := vertexPQ{level: int(l[x] - "0"[0]), neighbors: make([]*vertexPQ, 0)}
 			offset := y*len(l) + x
 			if x > 0 {
 				data[offset-1].neighbors = append(data[offset-1].neighbors, &v)
