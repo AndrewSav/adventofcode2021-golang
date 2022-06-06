@@ -1,14 +1,20 @@
 package main
 
+type runDataPart struct {
+	Part    int
+	Variant string
+}
+
 type runDataElement struct {
 	Day   int
-	Parts []int
+	Parts []runDataPart
 }
 
 type runData struct {
-	Days       []runDataElement
-	LatestDay  int
-	LatestPart int
+	Days          []runDataElement
+	LatestDay     int
+	LatestPart    int
+	LatestVariant string
 }
 
 const (
@@ -23,17 +29,17 @@ import (
 	"log"
 )
 
-func run(day, part int, inputFile string) (string, int, int) {
+func run(day, part int, variant string, inputFile string) (string, int, int, string) {
 	switch day {
 {{- range $d := .Days }}
 	case {{ $d.Day }}:
-		switch part {
+		switch {
 {{- range $p := $d.Parts }}
-		case {{ $p }}:
-			return day{{ printf "%02d" $d.Day }}.Part{{ $p }}(inputFile), day, part
+		case part == {{ $p.Part }} && variant == "{{ $p.Variant }}":
+			return day{{ printf "%02d" $d.Day }}.Part{{ $p.Part }}{{ $p.Variant }}(inputFile), day, part, variant
 {{- end}}
 		default:
-			log.Fatalf("Unknown part %d on day %d", part, day)
+			log.Fatalf("Unknown part %d on day %d, variant '%s'", part, day, variant)
 		}
 {{- end}}
 	default:
@@ -42,18 +48,19 @@ func run(day, part int, inputFile string) (string, int, int) {
 	panic("unexpected code path")
 }
 
-func getRunAll() (result []func() (string, int, int)) {
+func getRunAll() (result []func() (string, int, int, string)) {
 {{- range $d := .Days }}
 {{- range $p := $d.Parts }}
-	result = append(result, func() (string, int, int) { return run({{ $d.Day }}, {{ $p }}, util.GetDefautInputFilePath({{ $d.Day }})) })
+	result = append(result, func() (string, int, int, string) { return run({{ $d.Day }}, {{ $p.Part }}, "{{ $p.Variant }}", util.GetDefautInputFilePath({{ $d.Day }}))})
 {{- end }}
 {{- end }}
 	return
 }
 
-func getLatest() (day int, part int) {
+func getLatest() (day int, part int, variant string) {
 	day = {{ .LatestDay }}
 	part = {{ .LatestPart }}
+	variant = "{{ .LatestVariant }}"
 	return
 }
 `

@@ -7,13 +7,13 @@ import (
 )
 
 // https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Using_a_priority_queue
-func search(data []*vertex, entry *vertex, exit *vertex) int {
-	dist := make(map[*vertex]int)
+func search(data []*vertexPQ, entry *vertexPQ, exit *vertexPQ) int {
+	dist := make(map[*vertexPQ]int)
 	dist[entry] = 0
 	f := PriorityQueue{entry}
 	heap.Init(&f)
 	for {
-		u := heap.Pop(&f).(*vertex)
+		u := heap.Pop(&f).(*vertexPQ)
 		if u == exit {
 			return dist[u]
 		}
@@ -35,10 +35,10 @@ func search(data []*vertex, entry *vertex, exit *vertex) int {
 
 func Part1(inputFile string) string {
 	lines := util.ReadInput(inputFile)
-	data := make([]*vertex, 0, len(lines)*len(lines[0]))
+	data := make([]*vertexPQ, 0, len(lines)*len(lines[0]))
 	for y, l := range lines {
 		for x := range l {
-			v := vertex{level: l[x] - "0"[0], neighbors: make([]*vertex, 0)}
+			v := vertexPQ{level: l[x] - "0"[0], neighbors: make([]*vertexPQ, 0)}
 			offset := y*len(l) + x
 			if x > 0 {
 				data[offset-1].neighbors = append(data[offset-1].neighbors, &v)

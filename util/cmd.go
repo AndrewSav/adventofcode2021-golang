@@ -11,6 +11,7 @@ import (
 type Flags struct {
 	Day                int
 	Part               int
+	Variant            string
 	Verbose            bool
 	All                bool
 	InputFile          string
@@ -27,9 +28,10 @@ func ParseArgs() Flags {
 	fs.Usage = func() {
 		fmt.Println("This program runs solutions for Advent Of Code 2021")
 		fmt.Println("https://adventofcode.com/2021")
-		fmt.Printf("Usage: %s [FLAGS...] [day [part]]\n", filepath.Base(os.Args[0]))
+		fmt.Printf("Usage: %s [FLAGS...] [day [part [variant]]]\n", filepath.Base(os.Args[0]))
 		fmt.Println("  day (1-25) - specifies the day of the problem to run solution for. If not specified, the last existing")
 		fmt.Println("  part (1-2) - specifies the part of the problem on the given day to run solution for. If not specified, the last existing")
+		fmt.Println("  variant (arbitrary name) - specifies the an alternate solution for the part. If not specified, the last existing")
 		fmt.Println("Flags:")
 		fs.PrintDefaults()
 	}
@@ -45,10 +47,14 @@ func ParseArgs() Flags {
 
 	fs.Parse(os.Args[1:])
 
-	if fs.NArg() > 2 {
+	if fs.NArg() > 3 {
 		fmt.Printf("want 2 or less arguments, have %d\n", fs.NArg())
 		fs.Usage()
 		os.Exit(2)
+	}
+
+	if fs.NArg() > 2 {
+		flags.Variant = fs.Arg(2)
 	}
 
 	if fs.NArg() > 1 {

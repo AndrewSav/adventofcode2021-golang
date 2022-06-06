@@ -24,7 +24,7 @@ func main() {
 		}
 	}
 
-	latestDay, latestPart := getLatest()
+	latestDay, latestPart, latestVariant := getLatest()
 
 	if flags.Day == 0 {
 		flags.Day = latestDay
@@ -32,6 +32,10 @@ func main() {
 
 	if flags.Part == 0 {
 		flags.Part = latestPart
+	}
+
+	if flags.Variant == "" {
+		flags.Variant = latestVariant
 	}
 
 	if flags.InputFile == "" {
@@ -42,7 +46,7 @@ func main() {
 		flags.SessionCookie = util.TryGetCookie()
 	}
 
-	var solutions []func() (string, int, int)
+	var solutions []func() (string, int, int, string)
 	if flags.All {
 		flags.Verbose = true
 		solutions = getRunAll()
@@ -55,17 +59,17 @@ func main() {
 		if flags.DownloadInput {
 			util.DownloadInput(flags.SessionCookie, flags.Day, flags.InputFile)
 		}
-		solutions = append(solutions, func() (string, int, int) { return run(flags.Day, flags.Part, flags.InputFile) })
+		solutions = append(solutions, func() (string, int, int, string) { return run(flags.Day, flags.Part, flags.Variant, flags.InputFile) })
 	}
 
 	for _, s := range solutions {
 		if flags.Verbose {
 			start := time.Now()
-			result, eday, epart := s()
+			result, eday, epart, evariant := s()
 			duration := time.Since(start)
-			fmt.Printf("Day %d, Part %d, %s (%v)\n", eday, epart, result, duration)
+			fmt.Printf("Day %d, Part %d%s, %s (%v)\n", eday, epart, evariant, result, duration)
 		} else {
-			result, _, _ := s()
+			result, _, _, _ := s()
 			fmt.Println(result)
 		}
 

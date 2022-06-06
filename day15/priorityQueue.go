@@ -4,14 +4,14 @@ import (
 	"container/heap"
 )
 
-type vertex struct {
+type vertexPQ struct {
 	level     byte
-	neighbors []*vertex
+	neighbors []*vertexPQ
 	priority  int
 	index     int
 }
 
-type PriorityQueue []*vertex
+type PriorityQueue []*vertexPQ
 
 func (pq PriorityQueue) Len() int { return len(pq) }
 
@@ -27,22 +27,22 @@ func (pq PriorityQueue) Swap(i, j int) {
 
 func (pq *PriorityQueue) Push(x any) {
 	n := len(*pq)
-	vertex := x.(*vertex)
-	vertex.index = n
-	*pq = append(*pq, vertex)
+	vertexPQ := x.(*vertexPQ)
+	vertexPQ.index = n
+	*pq = append(*pq, vertexPQ)
 }
 
 func (pq *PriorityQueue) Pop() any {
 	old := *pq
 	n := len(old)
-	vertex := old[n-1]
+	vertexPQ := old[n-1]
 	old[n-1] = nil
-	vertex.index = -1
+	vertexPQ.index = -1
 	*pq = old[0 : n-1]
-	return vertex
+	return vertexPQ
 }
 
-func (pq *PriorityQueue) update(vertex *vertex, priority int) {
-	vertex.priority = priority
-	heap.Fix(pq, vertex.index)
+func (pq *PriorityQueue) update(vertexPQ *vertexPQ, priority int) {
+	vertexPQ.priority = priority
+	heap.Fix(pq, vertexPQ.index)
 }

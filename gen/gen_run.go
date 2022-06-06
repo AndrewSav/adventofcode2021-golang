@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
 	"text/template"
 )
 
@@ -21,7 +22,7 @@ func main() {
 	defer cf.Close()
 	var data runData
 
-	files, err := filepath.Glob("day[0-9][0-9]/part[1-2].go")
+	files, err := filepath.Glob("day[0-9][0-9]/part[1-2]*.go")
 	if err != nil {
 		panic(err)
 	}
@@ -38,12 +39,16 @@ func main() {
 			panic(err)
 		}
 		data.LatestPart = part
+		i := strings.Index(file[11:], ".")
+		variant := file[11 : 11+i]
+		data.LatestVariant = variant
 		if day != previousDay {
 			previousDay = day
 			data.Days = append(data.Days, runDataElement{Day: day})
 		}
 		currentDay := &data.Days[len(data.Days)-1]
-		currentDay.Parts = append(currentDay.Parts, part)
+		currentPart := runDataPart{Part: part, Variant: variant}
+		currentDay.Parts = append(currentDay.Parts, currentPart)
 	}
 	t := template.Must(template.New("run").Parse(runTemplate))
 	if err := t.Execute(cf, data); err != nil {
