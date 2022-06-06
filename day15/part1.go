@@ -2,49 +2,32 @@ package day15
 
 import (
 	"aoc2021/util"
+	"container/heap"
 	"fmt"
-	"math"
 )
 
-type vertex struct {
-	level     byte
-	neighbors []*vertex
-}
-
-func removeMin(q map[*vertex]*struct{}, dist map[*vertex]int) (result *vertex) {
-	min := math.MaxInt
-	for k := range q {
-		newmin := util.Min(min, dist[k])
-		if newmin < min {
-			result = k
-			min = newmin
-		}
-	}
-	delete(q, result)
-	return
-}
-
-// https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Pseudocode
+// https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Using_a_priority_queue
 func search(data []*vertex, entry *vertex, exit *vertex) int {
 	dist := make(map[*vertex]int)
-	q := make(map[*vertex]*struct{})
-	for _, d := range data {
-		dist[d] = math.MaxInt
-		q[d] = &struct{}{}
-	}
 	dist[entry] = 0
+	f := PriorityQueue{entry}
+	heap.Init(&f)
 	for {
-		u := removeMin(q, dist)
+		u := heap.Pop(&f).(*vertex)
 		if u == exit {
 			return dist[u]
 		}
 		for _, v := range u.neighbors {
-			if q[v] == nil {
-				continue
-			}
 			alt := dist[u] + int(v.level)
-			if alt < dist[v] {
+			if i, ok := dist[v]; !ok {
 				dist[v] = alt
+				heap.Push(&f, v)
+				f.update(v, alt)
+			} else {
+				if alt < i {
+					dist[v] = alt
+					f.update(v, alt)
+				}
 			}
 		}
 	}
@@ -68,5 +51,6 @@ func Part1(inputFile string) string {
 			data = append(data, &v)
 		}
 	}
+
 	return fmt.Sprint(search(data, data[0], data[len(data)-1]))
 }
