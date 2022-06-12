@@ -40,7 +40,7 @@ func GetPlot(inputFile string) [][]int {
 	lines := ReadInput(inputFile)
 	var data = make([][]int, len(lines))
 	for i, l := range lines {
-		data[i] = Atoi(strings.Split(l, ""))
+		data[i] = AtoiSlice(strings.Split(l, ""))
 	}
 	return data
 }

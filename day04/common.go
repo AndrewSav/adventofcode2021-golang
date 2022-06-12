@@ -42,7 +42,7 @@ func (b *bingo) mark(val int) (bool, int) {
 
 func solve(inputFile string, firstWin bool) string {
 	lines := util.ReadInput(inputFile)
-	seq := util.Atoi(strings.Split(lines[0], ","))
+	seq := util.AtoiSlice(strings.Split(lines[0], ","))
 	mm := []bingo{}
 	for c := 1; c < len(lines); c++ {
 		y := (c - 1) % (height + 1)

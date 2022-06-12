@@ -64,7 +64,7 @@ func readData(inputFile string) (points, folds []point) {
 			continue
 		}
 		if coordsSection {
-			points = append(points, *newPointFromSlice(util.Atoi(strings.Split(l, ","))))
+			points = append(points, *newPointFromSlice(util.AtoiSlice(strings.Split(l, ","))))
 		} else {
 			parts := strings.Split(l[len("fold along "):], "=")
 			if parts[0] == "x" {

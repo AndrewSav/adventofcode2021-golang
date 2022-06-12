@@ -17,7 +17,7 @@ func getFuel(ss []int, goal int, consumption fuelFunc) (fuel int) {
 
 func solve(inputFile string, consumption fuelFunc) string {
 	lines := util.ReadInput(inputFile)
-	ss := util.Atoi(strings.Split(lines[0], ","))
+	ss := util.AtoiSlice(strings.Split(lines[0], ","))
 	min, max := ss[0], ss[0]
 	for _, s := range ss {
 		min = util.Min(min, s)

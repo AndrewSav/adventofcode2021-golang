@@ -35,7 +35,7 @@ func tick7(m [9]int) (result [9]int) {
 
 func solve(inputFile string, days int) string {
 	lines := util.ReadInput(inputFile)
-	ff := util.Atoi(strings.Split(lines[0], ","))
+	ff := util.AtoiSlice(strings.Split(lines[0], ","))
 	m := [9]int64{}
 	for _, f := range ff {
 		m[f]++
