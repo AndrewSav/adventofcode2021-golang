@@ -1,6 +1,8 @@
 package day16
 
-import "strconv"
+import (
+	"strconv"
+)
 
 type header struct {
 	version int
@@ -31,12 +33,13 @@ type packet interface {
 	isLiteral() bool
 	getVersion() int
 	string() string
+	getValue() int
 }
 
 func parseLiteral(input string, h header) (packet, string) {
 	value := 0
-	for previousPrefix, chunk := "1", input[1:5]; previousPrefix == "1"; previousPrefix, input = input[0:1], input[5:] {
-		value = value*16 + parseBinary(chunk)
+	for previousPrefix := "1"; previousPrefix == "1"; previousPrefix, input = input[0:1], input[5:] {
+		value = value*16 + parseBinary(input[1:5])
 	}
 	return &literal{header: h, value: value}, input
 }

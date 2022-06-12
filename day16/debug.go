@@ -18,13 +18,13 @@ func (l *operator) string() string {
 }
 
 func (l *operator) strings() []string {
-	result := []string{fmt.Sprintf("%s, Length type id: %d, Lenght: %d", l.header.string(), l.lengthTypeId, l.length)}
-	for _, p := range l.subPackets {
+	result := []string{fmt.Sprintf("%s, Length type id: %d, Lenght: %d, Value: %d;", l.header.string(), l.lengthTypeId, l.length, l.getValue())}
+	for i, p := range l.subPackets {
 		if p.isLiteral() {
-			result = append(result, fmt.Sprintf("  %s", p.string()))
+			result = append(result, fmt.Sprintf("  %s;<-%d", p.string(), i))
 		} else {
 			for _, s := range p.(*operator).strings() {
-				result = append(result, fmt.Sprintf("  %s", s))
+				result = append(result, fmt.Sprintf("  %s<-%d", s, i))
 			}
 		}
 	}
