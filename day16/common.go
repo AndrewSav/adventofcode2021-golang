@@ -1,7 +1,11 @@
 package day16
 
 import (
+	"aoc2021/util"
+	"encoding/hex"
+	"fmt"
 	"strconv"
+	"strings"
 )
 
 type header struct {
@@ -32,52 +36,64 @@ type operator struct {
 type packet interface {
 	isLiteral() bool
 	getVersion() int
-	string() string
 	getValue() int
 }
 
-func parseLiteral(input string, h header) (packet, string) {
-	value := 0
-	for previousPrefix := "1"; previousPrefix == "1"; previousPrefix, input = input[0:1], input[5:] {
-		value = value*16 + parseBinary(input[1:5])
-	}
-	return &literal{header: h, value: value}, input
-}
-
-func parseOperator(input string, h header) (packet, string) {
-	result := operator{header: h, lengthTypeId: parseBinary(input[0:1])}
-	if result.lengthTypeId == 0 {
-		result.length = parseBinary(input[1:16])
-		input = input[16:]
-		targetLength := len(input) - result.length
-		var p packet
-		for len(input) > targetLength {
-			p, input = parse(input)
-			result.subPackets = append(result.subPackets, p)
-		}
-		return &result, input
-	} else {
-		result.length = parseBinary(input[1:12])
-		input = input[12:]
-		var p packet
-		for i := 0; i < result.length; i++ {
-			p, input = parse(input)
-			result.subPackets = append(result.subPackets, p)
-		}
-		return &result, input
-	}
-}
-
-func parse(input string) (packet, string) {
-	h := header{version: parseBinary(input[:3]), typeId: parseBinary(input[3:6])}
-	if h.isLiteral() {
-		return parseLiteral(input[6:], h)
-	} else {
-		return parseOperator(input[6:], h)
-	}
-}
-
-func parseBinary(s string) int {
+func toNum(s string) int {
 	i, _ := strconv.ParseInt(s, 2, 32)
 	return int(i)
+}
+
+type bitStream string
+
+func (b *bitStream) get(width int) int {
+	result := toNum(string((*b)[:width]))
+	*b = (*b)[width:]
+	return result
+}
+
+func (b *bitStream) parseLiteral(h header) packet {
+	value, stop := 0, false
+	for !stop {
+		stop = b.get(1) == 0
+		value = value*16 + b.get(4)
+	}
+	return &literal{header: h, value: value}
+}
+
+func (b *bitStream) parseOperator(h header) packet {
+	result := operator{header: h, lengthTypeId: b.get(1)}
+	if result.lengthTypeId == 0 {
+		result.length = b.get(15)
+		targetLength := len(*b) - result.length
+		for len(*b) > targetLength {
+			result.subPackets = append(result.subPackets, b.parse())
+		}
+	} else {
+		result.length = b.get(11)
+		for i := 0; i < result.length; i++ {
+			result.subPackets = append(result.subPackets, b.parse())
+		}
+	}
+	return &result
+}
+
+func (b *bitStream) parse() packet {
+	h := header{version: b.get(3), typeId: b.get(3)}
+	if h.isLiteral() {
+		return b.parseLiteral(h)
+	} else {
+		return b.parseOperator(h)
+	}
+}
+
+func loadAndParse(inputFile string) packet {
+	lines := util.ReadInput(inputFile)
+	bytes, _ := hex.DecodeString(lines[0])
+	var sb strings.Builder
+	for _, b := range bytes {
+		fmt.Fprintf(&sb, "%08b", b)
+	}
+	s := bitStream(sb.String())
+	return s.parse()
 }
