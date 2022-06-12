@@ -2,11 +2,7 @@ module aoc2021
 
 go 1.18
 
-require (
-	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
-	github.com/zellyn/kooky v0.0.0-20220429214451-68fd0a98b521
-	golang.org/x/exp v0.0.0-20220602145555-4a0574d9293f
-)
+require github.com/zellyn/kooky v0.0.0-20220429214451-68fd0a98b521
 
 require (
 	github.com/go-sqlite/sqlite3 v0.0.0-20180313105335-53dd8e640ee7 // indirect

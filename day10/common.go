@@ -4,9 +4,14 @@ import (
 	"aoc2021/util"
 	"fmt"
 	"sort"
-
-	"github.com/golang-collections/collections/stack"
 )
+
+type stack []rune
+
+func (s *stack) Pop() (result rune) {
+	result, *s = (*s)[len(*s)-1], (*s)[:len(*s)-1]
+	return
+}
 
 func solveInner(inputFile string) (int, int64) {
 	syntaxScores := map[rune]int{
@@ -31,15 +36,15 @@ func solveInner(inputFile string) (int, int64) {
 	resultSyntax := 0
 	resultsAuto := []int64{}
 	for _, l := range lines {
-		s := stack.New()
+		s := stack{}
 		broken := false
 		for _, c := range l {
 			switch c {
 			case '(', '[', '{', '<':
-				s.Push(c)
+				s = append(s, c)
 				continue
 			}
-			if pairs[s.Pop().(rune)] != c {
+			if pairs[s.Pop()] != c {
 				resultSyntax += syntaxScores[c]
 				broken = true
 				break
@@ -47,8 +52,8 @@ func solveInner(inputFile string) (int, int64) {
 		}
 		if !broken {
 			count := int64(0)
-			for s.Len() > 0 {
-				count = count*5 + int64(autoScores[pairs[s.Pop().(rune)]])
+			for len(s) > 0 {
+				count = count*5 + int64(autoScores[pairs[s.Pop()]])
 			}
 			resultsAuto = append(resultsAuto, count)
 		}
