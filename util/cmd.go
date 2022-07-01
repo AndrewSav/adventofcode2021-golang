@@ -31,7 +31,7 @@ func ParseArgs() Flags {
 		fmt.Printf("Usage: %s [FLAGS...] [day [part [variant]]]\n", filepath.Base(os.Args[0]))
 		fmt.Println("  day (1-25) - specifies the day of the problem to run solution for. If not specified, the last existing")
 		fmt.Println("  part (1-2) - specifies the part of the problem on the given day to run solution for. If not specified, the last existing")
-		fmt.Println("  variant (arbitrary name) - specifies the an alternate solution for the part. If not specified, the last existing")
+		fmt.Println("  variant (arbitrary name) - specifies the alternate solution for the part. If not specified, the last existing")
 		fmt.Println("Flags:")
 		fs.PrintDefaults()
 	}
