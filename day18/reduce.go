@@ -8,58 +8,56 @@ type redcucerContext struct {
 	reduced         bool
 }
 
-type exploder struct{}
-
-func (p exploder) visitConst(t *term, ctx *redcucerContext) bool {
-	if ctx.hasJustExploded {
-		t.value += ctx.right
-		return true
-	} else {
-		ctx.left = t
-	}
-	return false
-}
-func (p exploder) visitPairStart(t *term, ctx *redcucerContext) bool {
-	ctx.level++
-	if ctx.level > 4 && t.isPlain() && !ctx.hasJustExploded {
-		if ctx.left != nil {
-			ctx.left.value += t.left.value
-		}
-		ctx.hasJustExploded = true
-		ctx.right = t.right.value
-		t.left = nil
-		t.right = nil
-		ctx.reduced = true
-	}
-	return false
-}
-func (p exploder) visitPairEnd(t *term, ctx *redcucerContext) bool {
-	ctx.level--
-	return false
-}
-
-type splitter struct{}
-
-func (p splitter) visitConst(t *term, ctx *redcucerContext) bool {
-	if t.value >= 10 {
-		t.left = &term{value: t.value / 2}
-		t.right = &term{value: t.value / 2}
-		if t.value%2 == 1 {
-			t.right.value++
-		}
-		t.value = 0
-		ctx.reduced = true
-		return true
-	}
-	return false
-}
-
 func (t *term) reduce() bool {
 	ctx := &redcucerContext{}
-	visit(t, visitor[redcucerContext](exploder{}), ctx)
+	exploder := treeVisitor[redcucerContext]{
+		visitConst: visitHandler[redcucerContext](func(t *term, ctx *redcucerContext) bool {
+			if ctx.hasJustExploded {
+				t.value += ctx.right
+				return true
+			} else {
+				ctx.left = t
+			}
+			return false
+		}),
+		visitPairStart: visitHandler[redcucerContext](func(t *term, ctx *redcucerContext) bool {
+			ctx.level++
+			if ctx.level > 4 && t.isPlain() && !ctx.hasJustExploded {
+				if ctx.left != nil {
+					ctx.left.value += t.left.value
+				}
+				ctx.hasJustExploded = true
+				ctx.right = t.right.value
+				t.left = nil
+				t.right = nil
+				ctx.reduced = true
+			}
+			return false
+		}),
+		visitPairEnd: visitHandler[redcucerContext](func(t *term, ctx *redcucerContext) bool {
+			ctx.level--
+			return false
+		}),
+	}
+	splitter := treeVisitor[redcucerContext]{
+		visitConst: visitHandler[redcucerContext](func(t *term, ctx *redcucerContext) bool {
+			if t.value >= 10 {
+				t.left = &term{value: t.value / 2}
+				t.right = &term{value: t.value / 2}
+				if t.value%2 == 1 {
+					t.right.value++
+				}
+				t.value = 0
+				ctx.reduced = true
+				return true
+			}
+			return false
+		}),
+	}
+	visit(t, exploder, ctx)
 	if ctx.reduced {
 		return true
 	}
-	visit(t, visitor[redcucerContext](splitter{}), ctx)
+	visit(t, splitter, ctx)
 	return ctx.reduced
 }

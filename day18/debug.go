@@ -11,32 +11,32 @@ type printContext struct {
 	printLevel bool
 }
 
-type printer struct{}
-
-func (p printer) visitConst(t *term, ctx *printContext) bool {
-	fmt.Fprintf(&ctx.builder, "%d", t.value)
-	return false
-}
-func (p printer) visitPairStart(t *term, ctx *printContext) bool {
-	ctx.level++
-	if t.left.isConst() && ctx.printLevel {
-		fmt.Fprintf(&ctx.builder, "[(%d)", ctx.level)
-	} else {
-		fmt.Fprintf(&ctx.builder, "[")
-	}
-	return false
-}
-func (p printer) visitPairMid(t *term, ctx *printContext) bool {
-	fmt.Fprintf(&ctx.builder, ",")
-	return false
-}
-func (p printer) visitPairEnd(t *term, ctx *printContext) bool {
-	ctx.level--
-	fmt.Fprintf(&ctx.builder, "]")
-	return false
-}
 func (t *term) print(printLevel bool) {
 	ctx := &printContext{printLevel: printLevel}
-	visit(t, visitor[printContext](printer{}), ctx)
+	v := treeVisitor[printContext]{
+		visitConst: visitHandler[printContext](func(t *term, ctx *printContext) bool {
+			fmt.Fprintf(&ctx.builder, "%d", t.value)
+			return false
+		}),
+		visitPairStart: visitHandler[printContext](func(t *term, ctx *printContext) bool {
+			ctx.level++
+			if t.left.isConst() && ctx.printLevel {
+				fmt.Fprintf(&ctx.builder, "[(%d)", ctx.level)
+			} else {
+				fmt.Fprintf(&ctx.builder, "[")
+			}
+			return false
+		}),
+		visitPairMid: visitHandler[printContext](func(t *term, ctx *printContext) bool {
+			fmt.Fprintf(&ctx.builder, ",")
+			return false
+		}),
+		visitPairEnd: visitHandler[printContext](func(t *term, ctx *printContext) bool {
+			ctx.level--
+			fmt.Fprintf(&ctx.builder, "]")
+			return false
+		}),
+	}
+	visit(t, v, ctx)
 	fmt.Println(ctx.builder.String())
 }
