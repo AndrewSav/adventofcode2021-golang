@@ -4,19 +4,16 @@ func (t *term) getMagnitude2() int {
 	var current int
 	var left []int
 	v := treeVisitor{
-		visitConst: visitHandler(func(t *term) bool {
+		visitConst: visitHandler(func(t *term) {
 			current = t.value
-			return false
 		}),
-		visitPairMid: visitHandler(func(t *term) bool {
+		visitPairMid: visitHandler(func(t *term) {
 			left = append(left, current)
-			return false
 		}),
-		visitPairEnd: visitHandler(func(t *term) bool {
+		visitPairEnd: visitHandler(func(t *term) {
 			pop := left[len(left)-1]
 			left = left[:len(left)-1]
 			current = pop*3 + current*2
-			return false
 		}),
 	}
 	visit(t, v)

@@ -9,27 +9,23 @@ func (t *term) print(printLevel bool) {
 	var builder strings.Builder
 	var level int
 	v := treeVisitor{
-		visitConst: visitHandler(func(t *term) bool {
+		visitConst: visitHandler(func(t *term) {
 			fmt.Fprintf(&builder, "%d", t.value)
-			return false
 		}),
-		visitPairStart: visitHandler(func(t *term) bool {
+		visitPairStart: visitHandler(func(t *term) {
 			level++
 			if t.left.isConst() && printLevel {
 				fmt.Fprintf(&builder, "[(%d)", level)
 			} else {
 				fmt.Fprintf(&builder, "[")
 			}
-			return false
 		}),
-		visitPairMid: visitHandler(func(t *term) bool {
+		visitPairMid: visitHandler(func(t *term) {
 			fmt.Fprintf(&builder, ",")
-			return false
 		}),
-		visitPairEnd: visitHandler(func(t *term) bool {
+		visitPairEnd: visitHandler(func(t *term) {
 			level--
 			fmt.Fprintf(&builder, "]")
-			return false
 		}),
 	}
 	visit(t, v)

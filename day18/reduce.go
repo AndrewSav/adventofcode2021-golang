@@ -5,23 +5,21 @@ func (t *term) reduce() bool {
 	var left *term
 	var hasJustExploded, reduced bool
 	exploder := treeVisitor{
-		visitConst: visitHandler(func(t *term) bool {
+		visitConst: visitHandler(func(t *term) {
 			if reduced && !hasJustExploded {
-				return false
+				return
 			}
 			if hasJustExploded {
 				t.value += right
 				hasJustExploded = false
-				return true
 			} else {
 				left = t
 			}
-			return false
 		}),
-		visitPairStart: visitHandler(func(t *term) bool {
+		visitPairStart: visitHandler(func(t *term) {
 			level++
 			if reduced {
-				return false
+				return
 			}
 			if level > 4 && t.isPlain() && !hasJustExploded {
 				if left != nil {
@@ -33,17 +31,15 @@ func (t *term) reduce() bool {
 				t.right = nil
 				reduced = true
 			}
-			return false
 		}),
-		visitPairEnd: visitHandler(func(t *term) bool {
+		visitPairEnd: visitHandler(func(t *term) {
 			level--
-			return false
 		}),
 	}
 	splitter := treeVisitor{
-		visitConst: visitHandler(func(t *term) bool {
+		visitConst: visitHandler(func(t *term) {
 			if reduced {
-				return false
+				return
 			}
 			if t.value >= 10 {
 				t.left = &term{value: t.value / 2}
@@ -53,9 +49,7 @@ func (t *term) reduce() bool {
 				}
 				t.value = 0
 				reduced = true
-				return true
 			}
-			return false
 		}),
 	}
 	visit(t, exploder)
