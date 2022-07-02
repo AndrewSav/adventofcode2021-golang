@@ -5,24 +5,24 @@ import (
 	"fmt"
 )
 
-func (l *literal) getValue() int {
-	return l.value
+func (l *literal) getValue() int64 {
+	return int64(l.value)
 }
 
-func (o *operator) getValue() int {
-	var c []int
+func (o *operator) getValue() int64 {
+	var c []int64
 	for _, s := range o.subPackets {
 		c = append(c, s.getValue())
 	}
 	switch o.typeId {
 	case 0:
-		result := 0
+		result := int64(0)
 		for _, v := range c {
 			result += v
 		}
 		return result
 	case 1:
-		result := 1
+		result := int64(1)
 		for _, v := range c {
 			result *= v
 		}

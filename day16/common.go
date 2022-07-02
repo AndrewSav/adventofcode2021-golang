@@ -23,7 +23,7 @@ func (h header) isLiteral() bool {
 
 type literal struct {
 	header
-	value int
+	value int64
 }
 
 type operator struct {
@@ -36,7 +36,7 @@ type operator struct {
 type packet interface {
 	isLiteral() bool
 	getVersion() int
-	getValue() int
+	getValue() int64
 }
 
 func toNum(s string) int {
@@ -53,10 +53,10 @@ func (b *bitStream) get(width int) int {
 }
 
 func (b *bitStream) parseLiteral(h header) packet {
-	value, stop := 0, false
+	value, stop := int64(0), false
 	for !stop {
 		stop = b.get(1) == 0
-		value = value*16 + b.get(4)
+		value = value*16 + int64(b.get(4))
 	}
 	return &literal{header: h, value: value}
 }
