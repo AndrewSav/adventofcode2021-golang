@@ -1,46 +1,50 @@
 package day18
 
-type redcucerContext struct {
-	level           int
-	left            *term
-	hasJustExploded bool
-	right           int
-	reduced         bool
-}
-
 func (t *term) reduce() bool {
-	ctx := &redcucerContext{}
-	exploder := treeVisitor[redcucerContext]{
-		visitConst: visitHandler[redcucerContext](func(t *term, ctx *redcucerContext) bool {
-			if ctx.hasJustExploded {
-				t.value += ctx.right
+	var level, right int
+	var left *term
+	var hasJustExploded, reduced bool
+	exploder := treeVisitor{
+		visitConst: visitHandler(func(t *term) bool {
+			if reduced && !hasJustExploded {
+				return false
+			}
+			if hasJustExploded {
+				t.value += right
+				hasJustExploded = false
 				return true
 			} else {
-				ctx.left = t
+				left = t
 			}
 			return false
 		}),
-		visitPairStart: visitHandler[redcucerContext](func(t *term, ctx *redcucerContext) bool {
-			ctx.level++
-			if ctx.level > 4 && t.isPlain() && !ctx.hasJustExploded {
-				if ctx.left != nil {
-					ctx.left.value += t.left.value
+		visitPairStart: visitHandler(func(t *term) bool {
+			level++
+			if reduced {
+				return false
+			}
+			if level > 4 && t.isPlain() && !hasJustExploded {
+				if left != nil {
+					left.value += t.left.value
 				}
-				ctx.hasJustExploded = true
-				ctx.right = t.right.value
+				hasJustExploded = true
+				right = t.right.value
 				t.left = nil
 				t.right = nil
-				ctx.reduced = true
+				reduced = true
 			}
 			return false
 		}),
-		visitPairEnd: visitHandler[redcucerContext](func(t *term, ctx *redcucerContext) bool {
-			ctx.level--
+		visitPairEnd: visitHandler(func(t *term) bool {
+			level--
 			return false
 		}),
 	}
-	splitter := treeVisitor[redcucerContext]{
-		visitConst: visitHandler[redcucerContext](func(t *term, ctx *redcucerContext) bool {
+	splitter := treeVisitor{
+		visitConst: visitHandler(func(t *term) bool {
+			if reduced {
+				return false
+			}
 			if t.value >= 10 {
 				t.left = &term{value: t.value / 2}
 				t.right = &term{value: t.value / 2}
@@ -48,16 +52,16 @@ func (t *term) reduce() bool {
 					t.right.value++
 				}
 				t.value = 0
-				ctx.reduced = true
+				reduced = true
 				return true
 			}
 			return false
 		}),
 	}
-	visit(t, exploder, ctx)
-	if ctx.reduced {
+	visit(t, exploder)
+	if reduced {
 		return true
 	}
-	visit(t, splitter, ctx)
-	return ctx.reduced
+	visit(t, splitter)
+	return reduced
 }

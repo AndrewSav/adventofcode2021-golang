@@ -5,38 +5,33 @@ import (
 	"strings"
 )
 
-type printContext struct {
-	builder    strings.Builder
-	level      int
-	printLevel bool
-}
-
 func (t *term) print(printLevel bool) {
-	ctx := &printContext{printLevel: printLevel}
-	v := treeVisitor[printContext]{
-		visitConst: visitHandler[printContext](func(t *term, ctx *printContext) bool {
-			fmt.Fprintf(&ctx.builder, "%d", t.value)
+	var builder strings.Builder
+	var level int
+	v := treeVisitor{
+		visitConst: visitHandler(func(t *term) bool {
+			fmt.Fprintf(&builder, "%d", t.value)
 			return false
 		}),
-		visitPairStart: visitHandler[printContext](func(t *term, ctx *printContext) bool {
-			ctx.level++
-			if t.left.isConst() && ctx.printLevel {
-				fmt.Fprintf(&ctx.builder, "[(%d)", ctx.level)
+		visitPairStart: visitHandler(func(t *term) bool {
+			level++
+			if t.left.isConst() && printLevel {
+				fmt.Fprintf(&builder, "[(%d)", level)
 			} else {
-				fmt.Fprintf(&ctx.builder, "[")
+				fmt.Fprintf(&builder, "[")
 			}
 			return false
 		}),
-		visitPairMid: visitHandler[printContext](func(t *term, ctx *printContext) bool {
-			fmt.Fprintf(&ctx.builder, ",")
+		visitPairMid: visitHandler(func(t *term) bool {
+			fmt.Fprintf(&builder, ",")
 			return false
 		}),
-		visitPairEnd: visitHandler[printContext](func(t *term, ctx *printContext) bool {
-			ctx.level--
-			fmt.Fprintf(&ctx.builder, "]")
+		visitPairEnd: visitHandler(func(t *term) bool {
+			level--
+			fmt.Fprintf(&builder, "]")
 			return false
 		}),
 	}
-	visit(t, v, ctx)
-	fmt.Println(ctx.builder.String())
+	visit(t, v)
+	fmt.Println(builder.String())
 }
