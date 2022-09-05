@@ -4,11 +4,9 @@ import (
 	"aoc2021/util"
 )
 
-// TODO: split
 type image struct {
 	data          [][]int
-	onCount       int
-	infinityValue int
+	infinityValue int // This is what's contained in all cells that we are not keeping track of in .data
 }
 
 func (im *image) GetMask(x, y int) int {
@@ -22,42 +20,42 @@ func (im *image) GetMask(x, y int) int {
 	return result
 }
 
-func (im *image) Enhance(alg [512]int, start, length int) {
-	//fmt.Printf("start: %d, length: %d\n", start, length)
-	im.onCount = 0
-	newImage := make([][]int, len(im.data))
-	index := 0
+func (im *image) Enhance(alg [512]int, start, length int) int {
+	var (
+		onCount  = 0
+		newImage = make([][]int, len(im.data))
+		index    = 0 // The bit mask is either all zeroes
+	)
 	if im.infinityValue == 1 {
-		index = 512 - 1
+		index = 512 - 1 // Or the bit mask is all ones
 	}
 	im.infinityValue = alg[index]
 	for y := 0; y < len(im.data); y++ {
 		newImage[y] = make([]int, len(im.data))
-		for x := 0; x < len(im.data); x++ {
-			if x >= start && x < start+length && y >= start && y < start+length {
-				mask := im.GetMask(x, y)
-				bit := alg[mask]
-				//fmt.Printf("x: %d, y: %d, mask: %d, bit: %d\n", x, y, mask, bit)
+		for x := start; x < start+length; x++ {
+			if y >= start && y < start+length {
+				bit := alg[im.GetMask(x, y)]
 				newImage[y][x] = bit
 				if bit == 1 {
-					im.onCount++
+					onCount++
 				}
 			}
 		}
 	}
-	for y := start - 2; y <= start+length+1; y++ {
-		newImage[y][start-2] = im.infinityValue
-		newImage[y][start+length+1] = im.infinityValue
-		newImage[y][start-1] = im.infinityValue
-		newImage[y][start+length] = im.infinityValue
-	}
-	for x := start - 2; x <= start+length+1; x++ {
-		newImage[start-2][x] = im.infinityValue
-		newImage[start+length+1][x] = im.infinityValue
-		newImage[start-1][x] = im.infinityValue
-		newImage[start+length][x] = im.infinityValue
+	// We do not really need to fill in all empty cells in .data
+	// but we need a 2-wide border for .GetMask to work correctly
+	for i := start - 2; i < start+length+2; i++ {
+		newImage[i][start-2] = im.infinityValue
+		newImage[i][start+length+1] = im.infinityValue
+		newImage[i][start-1] = im.infinityValue
+		newImage[i][start+length] = im.infinityValue
+		newImage[start-2][i] = im.infinityValue
+		newImage[start+length+1][i] = im.infinityValue
+		newImage[start-1][i] = im.infinityValue
+		newImage[start+length][i] = im.infinityValue
 	}
 	im.data = newImage
+	return onCount
 }
 
 func cell(c byte) int {
@@ -69,35 +67,30 @@ func cell(c byte) int {
 
 func loadInput(inputFile string, cycles int) int {
 	var imageEnhancementAlgorithm [512]int
-	var im image
 	data := util.ReadInput(inputFile)
 	for i := 0; i < len(imageEnhancementAlgorithm); i++ {
 		imageEnhancementAlgorithm[i] = cell(data[0][i])
 	}
-	const offset = 2
-	padding := cycles + 2
-	maxDimension := len(data) - offset + padding*2
-
+	const offset = 2 // First two lines in the file are the Image Enhancment Algorythm and a new line
+	var (
+		im           image
+		padding      = cycles + 2                     // add padding one cell for each enhancement cycle plus two-wide to account for infinite space on each side
+		maxDimension = len(data) - offset + padding*2 // the final square side
+	)
 	im = image{data: make([][]int, maxDimension)}
 	for i := 0; i < maxDimension; i++ {
 		im.data[i] = make([]int, maxDimension)
 	}
 	for i := offset; i < len(data); i++ {
 		for j := range data[i] {
-			//fmt.Printf("x: %d, y: %d, val: %d\n", j, i, cell(data[i][j]))
 			im.data[i-offset+padding][j+padding] = cell(data[i][j])
 		}
 	}
-	//im.print()
-	//fmt.Println("---")
+	onCount := 0
 	for i := 0; i < cycles; i++ {
 		dimension := len(data) - offset + (i+1)*2
 		start := (maxDimension - dimension) / 2
-		im.Enhance(imageEnhancementAlgorithm, start, dimension)
-		//if i <= 2 {
-		//im.print()
-		//fmt.Println("---")
-		//}
+		onCount = im.Enhance(imageEnhancementAlgorithm, start, dimension)
 	}
-	return im.onCount
+	return onCount
 }
