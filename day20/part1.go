@@ -5,10 +5,5 @@ import (
 )
 
 func Part1(inputFile string) string {
-	imageEnhancementAlgorithm, image := loadInput(inputFile)
-
-	image.Enhance(imageEnhancementAlgorithm)
-	image.Enhance(imageEnhancementAlgorithm)
-
-	return fmt.Sprintf("%d", image.onCount)
+	return fmt.Sprintf("%d", loadInput(inputFile, 2))
 }
