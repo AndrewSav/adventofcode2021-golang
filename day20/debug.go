@@ -7,7 +7,7 @@ import (
 func (im *image) print() {
 	for y := im.minY; y < im.maxY; y++ {
 		for x := im.minX; x < im.maxX; x++ {
-			if im.GetValue(x, y) {
+			if im.GetValue(x, y) == 1 {
 				fmt.Print("#")
 			} else {
 				fmt.Print(".")

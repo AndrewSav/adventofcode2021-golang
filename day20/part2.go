@@ -4,11 +4,12 @@ import (
 	"fmt"
 )
 
-func Part1(inputFile string) string {
+func Part2(inputFile string) string {
 	imageEnhancementAlgorithm, image := loadInput(inputFile)
 
-	image.Enhance(imageEnhancementAlgorithm)
-	image.Enhance(imageEnhancementAlgorithm)
+	for i := 0; i < 50; i++ {
+		image.Enhance(imageEnhancementAlgorithm)
+	}
 
 	return fmt.Sprintf("%d", image.onCount)
 }
