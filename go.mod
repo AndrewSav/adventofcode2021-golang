@@ -1,6 +1,6 @@
 module aoc2021
 
-go 1.18
+go 1.19
 
 require github.com/zellyn/kooky v0.0.0-20220429214451-68fd0a98b521
 
