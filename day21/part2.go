@@ -3,124 +3,75 @@ package day21
 import (
 	"aoc2021/util"
 	"fmt"
-	"sort"
-	"strings"
 )
 
-type step struct {
-	roll     int
-	score    int
-	position int
-}
-
 type state struct {
-	position    int
-	score       int
-	rollHistory []step
-	count       int
+	position int   // position of the player's pawn on board
+	score    int   // current player's score
+	forks    int64 // number of universe forks that gets us to the current state
+	turn     int   // current turn number
 }
 
-func formatRollHistory(initialPostion int, rollHistory []step) string {
+// This is the number of forks for each possible sum in three consequtive rolls
+// e.g. you can get the sum of 3 in a single universe: 1,1,1,
+// but you can get sum of 4 in 3 universes: 2,1,1; 1,2,1 and 1,1,2, etc
+var weights = map[int]int{3: 1, 4: 3, 5: 6, 6: 7, 7: 6, 8: 3, 9: 1}
 
-	position := initialPostion
-	score := 0
-	var sb strings.Builder
-	//fmt.Fprint(&sb, rollHistory)
-	fmt.Fprintf(&sb, "%d(%d), ", position+1, score)
-	for _, b := range rollHistory {
-		fmt.Fprintf(&sb, "%d(%d), ", b.position+1, b.score)
-	}
-	return sb.String()[0 : sb.Len()-2]
-}
-
-var weights = map[int]int{3: 1,
-	4: 3,
-	5: 6,
-	6: 7,
-	7: 6,
-	8: 3,
-	9: 1,
-}
-
-func addResults(m map[int]int) map[int]int {
-
-	keys := make([]int, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Ints(keys)
-	result := map[int]int{}
-	acc := 0
-	for _, k := range keys {
-		acc += m[k]
-		result[k] = acc
-	}
-	return result
-
-}
-
+// j is the initial player position (zero based for convinience)
+// it returns two maps, the key map is the turn number
+// values in the first map are the number of forks that win on that turn
+// values in the second map are the number of forks that do not win on that turn
+// for simplicity in this function we only consider one player's rolls and
+// completely ignoring forks from the other player, we account for them later
+// the number of forks is multipicative and order in which players roll does not matter
+// for the number of forks (it does matter for the win condition) it will always "add up"
+// to the same number given each individual player's forks
 func doTheNumbers(j int) (map[int]int64, map[int]int64) {
 	var win = map[int]int64{}
 	var lose = map[int]int64{}
-	//count := 0
-	//count2 := int64(0)
-	stack := []state{{position: j, score: 0, count: 1}}
+	// since forks is multiplicative we initialise it to one
+	stack := []state{{position: j, score: 0, forks: 1}}
+	// this is the standard depth first search
 	for len(stack) > 0 {
 		s := stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
-		//for i := 1; i <= 3; i++ {
+		// 3 to 9 are all the possible sums from the three rolls
 		for i := 3; i <= 9; i++ {
-			newPosition := (s.position + i) % 10
-			newScore := s.score
-			//if len(s.rollHistory)%3 == 2 {
-			newScore += newPosition + 1
-			newCount := s.count * weights[i]
-			//}
-			x := len(s.rollHistory)
-			rhs := step{position: newPosition, score: newScore, roll: i}
-			if newScore < 21 {
-				stack = append(stack, state{position: newPosition, score: newScore, count: newCount, rollHistory: append(s.rollHistory[:x:x], rhs)})
-				lose[x+1] += int64(newCount)
+			newState := state{
+				position: (s.position + i) % 10,
+				score:    s.score + ((s.position + i) % 10) + 1,
+				forks:    s.forks * int64(weights[i]),
+				turn:     s.turn + 1,
+			}
+			if newState.score < 21 {
+				stack = append(stack, newState)
+				lose[newState.turn] += newState.forks
 			} else {
-				//count++
-				//count2 += newCount
-				win[x+1] += int64(newCount)
-				//ss := formatRollHistory(j, append(s.rollHistory[:x:x], rhs))
-				//fmt.Printf("%s | %d(%d)\n", ss, newPosition+1, newScore)
+				win[newState.turn] += newState.forks
 			}
 		}
 	}
-	//fmt.Println(count)
-	//fmt.Println(count2)
 	return win, lose
 }
 
 func Part2(inputFile string) string {
 	data := util.ReadInput(inputFile)
-
 	first, second := getPosition(data[0]), getPosition(data[1])
-	//first := 4
-	//second := 8
 
-	//for j := 0; j < 10; j++ {
-	//	win, lose := doTheNumbers(first - 1)
-	//	fmt.Println(win)
-	//	fmt.Println(lose)
-	//	fmt.Println()
-	//}
+	winFirst, loseFirst := doTheNumbers(first - 1)
+	winSecond, loseSecond := doTheNumbers(second - 1)
 
-	win1, lose1 := doTheNumbers(first - 1)
-	win2, lose2 := doTheNumbers(second - 1)
-	//fmt.Println(win1)
-	//fmt.Println(lose1)
-	//fmt.Println()
-	//fmt.Println(win2)
-	//fmt.Println(lose2)
-	var firstWins, secondWins int64
+	var firstWinsCount, secondWinsCount int64
+	// a bit of cheating here, we know that 10 is always the max number of turns from debugging
+	// otherwise we should have really found the max keys in the maps first and used that
 	for i := 3; i <= 10; i++ {
-		//fmt.Println(win1[i] * lose2[i-1])
-		firstWins += win1[i] * lose2[i-1]
-		secondWins += win2[i] * lose1[i]
+		// first player wins on this turn in the number of his forks that he wins in
+		// multiplied by the number of forks the second player lost on previous turn
+		firstWinsCount += winFirst[i] * loseSecond[i-1]
+		// second player wins on this turn in the number of his forks that he wins in
+		// multiplied by the number of forks the first player lost on this turn
+		secondWinsCount += winSecond[i] * loseFirst[i]
 	}
-	return fmt.Sprint(util.Max(firstWins, secondWins))
+
+	return fmt.Sprint(util.Max(firstWinsCount, secondWinsCount))
 }
