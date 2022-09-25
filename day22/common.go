@@ -3,21 +3,9 @@ package day22
 import (
 	"aoc2021/util"
 	"fmt"
-	"regexp"
 	"sort"
 	"strings"
 )
-
-// https://stackoverflow.com/a/53587770/284111
-func findNamedMatches(regex *regexp.Regexp, str string) map[string]string {
-	match := regex.FindStringSubmatch(str)
-
-	results := map[string]string{}
-	for i, name := range match {
-		results[regex.SubexpNames()[i]] = name
-	}
-	return results
-}
 
 // represents limits from input for single dimention of an input line
 // each line has 3 dimensions: x, y and z
@@ -30,18 +18,6 @@ type cuboid struct {
 	dimensions [3]dimension
 	on         bool   // mode: true if "on", false if "off"
 	index      string // this is used for memoisation later
-}
-
-func loadCuboid(m map[string]string, index string) *cuboid {
-	return &cuboid{
-		dimensions: [3]dimension{
-			dimension{min: util.MustAtoi(m["zmin"]), max: util.MustAtoi(m["zmax"])},
-			dimension{min: util.MustAtoi(m["ymin"]), max: util.MustAtoi(m["ymax"])},
-			dimension{min: util.MustAtoi(m["xmin"]), max: util.MustAtoi(m["xmax"])},
-		},
-		on:    m["mode"] == "on",
-		index: index,
-	}
 }
 
 // returns ordered list of points where to stop while sweeping
@@ -79,7 +55,7 @@ var memoMap = map[memo]int64{} // maps sweep function parameters to the function
 // https://work.njae.me.uk/2021/12/29/advent-of-code-2021-day-22/
 func sweep(selection []*cuboid, dimensionIndex int) int64 {
 	// first we check if we already have a result for the parameters passed
-	// and if we do, return it
+	// and if we do, return it. It runs about 3 times as fast due to memoisation
 	memoKey := memo{getSelectionKey(selection), dimensionIndex}
 	if c, ok := memoMap[memoKey]; ok {
 		return c
@@ -120,11 +96,20 @@ func sweep(selection []*cuboid, dimensionIndex int) int64 {
 
 func solve(inputFile string, part1 bool) string {
 	data := util.ReadInput(inputFile)
-	r := regexp.MustCompile(`^(?P<mode>on|off) x=(?P<xmin>-?\d+)\.\.(?P<xmax>-?\d+),y=(?P<ymin>-?\d+)\.\.(?P<ymax>-?\d+),z=(?P<zmin>-?\d+)\.\.(?P<zmax>-?\d+)$`)
 	cuboids := []*cuboid{}
 	for i, s := range data {
-		m := findNamedMatches(r, s)
-		c := loadCuboid(m, fmt.Sprint(i))
+		var xmin, xmax, ymin, ymax, zmin, zmax int
+		tokens := strings.Split(s, " ")
+		fmt.Sscanf(tokens[1], "x=%d..%d,y=%d..%d,z=%d..%d", &xmin, &xmax, &ymin, &ymax, &zmin, &zmax)
+		c := &cuboid{
+			dimensions: [3]dimension{
+				dimension{min: zmin, max: zmax},
+				dimension{min: ymin, max: ymax},
+				dimension{min: xmin, max: xmax},
+			},
+			on:    tokens[0] == "on",
+			index: fmt.Sprint(i),
+		}
 		if part1 && isOutOfBound(c) {
 			continue
 		}
