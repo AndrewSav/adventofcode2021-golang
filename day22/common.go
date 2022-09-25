@@ -4,6 +4,7 @@ import (
 	"aoc2021/util"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -36,27 +37,22 @@ func getStopPoints(selection []*cuboid, dimensionIndex int) (stopPoints []int) {
 }
 
 // for memoisation we need to convert array of pointers to something that we can use, such in a map key, such as a sting
-func getSelectionKey(selection []*cuboid) string {
+func getSelectionKey(selection []*cuboid, dimensionIndex int) string {
 	var b strings.Builder
 	for _, v := range selection {
 		b.WriteString(v.index + "|")
 	}
+	b.WriteString(strconv.Itoa(dimensionIndex))
 	return b.String()
 }
 
-// this represnts the input parameters of the the sweep function for memoisation
-type memo struct {
-	selectionKey   string
-	dimensionIndex int
-}
-
-var memoMap = map[memo]int64{} // maps sweep function parameters to the function result
+var memoMap = map[string]int64{} // maps sweep function parameters to the function result
 
 // https://work.njae.me.uk/2021/12/29/advent-of-code-2021-day-22/
 func sweep(selection []*cuboid, dimensionIndex int) int64 {
 	// first we check if we already have a result for the parameters passed
 	// and if we do, return it. It runs about 3 times as fast due to memoisation
-	memoKey := memo{getSelectionKey(selection), dimensionIndex}
+	memoKey := getSelectionKey(selection, dimensionIndex)
 	if c, ok := memoMap[memoKey]; ok {
 		return c
 	}
