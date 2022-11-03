@@ -99,9 +99,9 @@ func solve(inputFile string, part1 bool) string {
 		fmt.Sscanf(tokens[1], "x=%d..%d,y=%d..%d,z=%d..%d", &xmin, &xmax, &ymin, &ymax, &zmin, &zmax)
 		c := &cuboid{
 			dimensions: [3]dimension{
-				dimension{min: zmin, max: zmax},
-				dimension{min: ymin, max: ymax},
-				dimension{min: xmin, max: xmax},
+				{min: zmin, max: zmax},
+				{min: ymin, max: ymax},
+				{min: xmin, max: xmax},
 			},
 			on:    tokens[0] == "on",
 			index: fmt.Sprint(i),
