@@ -2,24 +2,32 @@ package day23
 
 import (
 	"aoc2021/util"
+	"container/heap"
 	"fmt"
+	"sort"
+	"strings"
 )
 
-const MaxUint = ^uint(0)
-const MaxInt = int(MaxUint >> 1)
+//const MaxUint = ^uint(0)
+//const MaxInt = int(MaxUint >> 1)
+
+//const hallwayLength = 11
+//const part1RoomDepth = 2
 
 // #############
 // #123456789AB#
 // ###.#.#.#.###
-//
-//	#.#.#.#.#
-//	#########
+//   #.#.#.#.#
+//   #########
 //
 // where A - 10 and B - 11 for x in floorNode
+
 type floorNode struct {
 	x int // 1,2,4,6,8,10,11 - hallway, 3,5,7,9 - rooms
 	y int // 0 - hallway, 1 - room front, 2 - room rear
 }
+
+//var bbb [part1RoomDepth][hallwayLength]floorNode
 
 type amphipod struct {
 	kind   rune
@@ -145,12 +153,14 @@ func (s *state) move(m moveInfo) (result *state) {
 		source:           s.amphipodToFloorNode[m.amphipod],
 		energy:           energy,
 		cumulativeEnergy: energy + previousCumulativeEnergy,
+		previousState:    s,
 	}
 	result = &state{
 		steps:               make([]step, len(s.steps)),
 		amphipodToFloorNode: make(map[amphipod]floorNode),
 		floorNodeToAmphipod: make(map[floorNode]amphipod),
 	}
+	stp.state = result
 	copy(result.steps, s.steps)
 	result.steps = append(result.steps, stp)
 	//TODO: review
@@ -175,6 +185,32 @@ func (s *state) areWeThereYet() bool {
 		}
 	}
 	return true
+}
+
+func (s *state) getHash() string {
+	if s.hash != "" {
+		return s.hash
+	}
+	//final := true
+	var sb strings.Builder
+	keys := make([]amphipod, 0, len(s.amphipodToFloorNode))
+
+	for k := range s.amphipodToFloorNode {
+		keys = append(keys, k)
+		//if destinations[k.kind] != v.x {
+		//	final = false
+		//}
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i].kind < keys[j].kind || (keys[i].kind == keys[j].kind && keys[i].number < keys[j].number)
+	})
+
+	for _, k := range keys {
+		fmt.Fprintf(&sb, "%c%d(%d,%d)", k.kind, k.number, s.amphipodToFloorNode[k].x, s.amphipodToFloorNode[k].y)
+	}
+	s.hash = sb.String()
+	//s.final = final
+	return s.hash
 }
 
 func (s *state) dump() {
@@ -223,51 +259,96 @@ type step struct {
 	source           floorNode
 	energy           int
 	cumulativeEnergy int
+	state            *state
+	previousState    *state
 }
 
 type state struct {
 	steps               []step
 	floorNodeToAmphipod map[floorNode]amphipod
 	amphipodToFloorNode map[amphipod]floorNode
+	hash                string
+	//final               bool
 }
 
 //var floorNodeToAmphipod = map[floorNode]amphipod{}
 //var amphipodToFloorNode = map[amphipod]floorNode{}
 
+/*
 func bla(start *state) {
 
-	best := MaxInt
+		best := MaxInt
 
-	stack := [](*state){start}
-	for len(stack) > 0 {
-		//fmt.Printf("stack: %d\n", len(stack))
-		s := stack[len(stack)-1]
-		stack = stack[:len(stack)-1]
-		//fmt.Printf("steps: %d\n", len(s.steps))
-		//s.dump()
-		moves := s.getAllPossibleMoves()
-		if len(moves) == 0 {
-			//fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-		}
-		for _, move := range moves {
-			next := s.move(move)
-			if next.areWeThereYet() {
-				en := next.steps[len(next.steps)-1].cumulativeEnergy
-				min := util.Min(best, en)
-				if min < best {
-					fmt.Printf("found %d, steps %d\n", en, len(next.steps))
-					best = min
-					temp := start
-					temp.dump()
-					for _, z := range next.steps {
-						temp = temp.move(z.moveInfo)
+		stack := [](*state){start}
+		for len(stack) > 0 {
+			//fmt.Printf("stack: %d\n", len(stack))
+			s := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+			//fmt.Printf("steps: %d\n", len(s.steps))
+			//s.dump()
+			moves := s.getAllPossibleMoves()
+			if len(moves) == 0 {
+				//fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+			}
+			for _, move := range moves {
+				next := s.move(move)
+				if next.areWeThereYet() {
+					en := next.steps[len(next.steps)-1].cumulativeEnergy
+					min := util.Min(best, en)
+					if min < best {
+						fmt.Printf("found %d, steps %d\n", en, len(next.steps))
+						best = min
+						temp := start
 						temp.dump()
-						fmt.Printf("%d %d\n", z.energy, z.cumulativeEnergy)
+						for _, z := range next.steps {
+							temp = temp.move(z.moveInfo)
+							temp.dump()
+							fmt.Printf("%d %d\n", z.energy, z.cumulativeEnergy)
+						}
 					}
-				}
 
-			} else {
-				stack = append(stack, next)
+				} else {
+					stack = append(stack, next)
+				}
+			}
+		}
+	}
+*/
+func bla(start *state) int {
+	dist := map[*state]int{start: 0}
+	lookup := map[string]*state{start.getHash(): start}
+	q := make(PriorityQueue, 1)
+	q[0] = &Item{
+		value:    start,
+		priority: 0,
+		index:    0,
+	}
+	//lookup2 := map[string]*Item{start.getHash(): q[0]}
+	heap.Init(&q)
+	for {
+		u := heap.Pop(&q).(*Item)
+		if u.value.areWeThereYet() {
+			return dist[u.value]
+		}
+		for _, v := range u.value.getAllPossibleMoves() {
+			next := u.value.move(v)
+			energy := next.steps[len(next.steps)-1].energy
+			alt := dist[u.value] + energy
+
+			if old, ok := lookup[next.getHash()]; !ok || alt < dist[old] {
+				if !ok {
+					lookup[next.getHash()] = next
+				}
+				dist[next] = alt
+				//if old, ok := lookup2[next.getHash()]; ok {
+				//	q.update(old, old.value, alt)
+				//} else {
+				nextItem := &Item{
+					value:    next,
+					priority: alt,
+				}
+				heap.Push(&q, nextItem) // do we need to  remove old (if any)?
+				//}
 			}
 		}
 	}
@@ -310,7 +391,5 @@ func Part1(inputFile string) string {
 		s.floorNodeToAmphipod[v] = k
 	}
 
-	bla(s)
-
-	return inputFile
+	return fmt.Sprint(bla(s))
 }
