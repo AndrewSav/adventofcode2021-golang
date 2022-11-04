@@ -6,9 +6,11 @@ import (
 	"fmt"
 )
 
+const roomSlots = 2
+
 type state struct {
 	hallway [7]rune
-	room    [4][2]rune
+	room    [4][roomSlots]rune
 }
 
 var weights = map[rune]int{'A': 1, 'B': 10, 'C': 100, 'D': 1000}
@@ -33,8 +35,8 @@ func getRoomToRoomDistance(room, roomSlot, otherRoom, otherroomSlot int) int {
 	return util.Abs(room-otherRoom)*2 + roomSlot + 1 + otherroomSlot + 1
 }
 
-func (s *state) isRoomReady(room int) int {
-	for i := 1; i >= 0; i-- {
+func (s state) isRoomReady(room int) int {
+	for i := roomSlots - 1; i >= 0; i-- {
 		x := s.room[room][i]
 		if x == 0 {
 			return i // room is ready for move in and i is the next free slot
@@ -46,7 +48,7 @@ func (s *state) isRoomReady(room int) int {
 	return -2 // room is already settled
 }
 
-func (s *state) canMoveOut(room, slot int) bool {
+func (s state) canMoveOut(room, slot int) bool {
 	if slot == 0 {
 		return true
 	}
@@ -58,7 +60,7 @@ func (s *state) canMoveOut(room, slot int) bool {
 	return true
 }
 
-func (s *state) canMoveBetweenRooms(room, otherRoom int) bool {
+func (s state) canMoveBetweenRooms(room, otherRoom int) bool {
 	if room > otherRoom {
 		room, otherRoom = otherRoom, room
 	}
@@ -70,7 +72,7 @@ func (s *state) canMoveBetweenRooms(room, otherRoom int) bool {
 	return true
 }
 
-func (s *state) canMoveBetweenHallwayAndRoom(hallway, room int) bool {
+func (s state) canMoveBetweenHallwayAndRoom(hallway, room int) bool {
 	target := hallwayToRoom[hallway][room]
 	if target == hallway {
 		return true
@@ -90,17 +92,17 @@ func (s *state) canMoveBetweenHallwayAndRoom(hallway, room int) bool {
 	return true
 }
 
-func (s *state) getAllPossibleMoves() (result []Item) {
+func (s state) getAllPossibleMoves() (result []Item[state]) {
 	for hallway, amphipod := range s.hallway {
 		if amphipod == 0 {
 			continue
 		}
 		destinationRoom := int(amphipod - 'A')
 		if destinationSlot := s.isRoomReady(destinationRoom); destinationSlot >= 0 && s.canMoveBetweenHallwayAndRoom(hallway, destinationRoom) {
-			new := *s
+			new := s
 			new.hallway[hallway] = 0
 			new.room[destinationRoom][destinationSlot] = amphipod
-			result = append(result, Item{new, weights[amphipod] * getDistance(hallway, destinationRoom, destinationSlot)})
+			result = append(result, Item[state]{new, weights[amphipod] * getDistance(hallway, destinationRoom, destinationSlot)})
 		}
 	}
 	for room, r := range s.room {
@@ -118,10 +120,10 @@ func (s *state) getAllPossibleMoves() (result []Item) {
 				}
 			}
 			if destinationSlot := s.isRoomReady(destinationRoom); destinationSlot >= 0 && s.canMoveBetweenRooms(room, destinationRoom) {
-				new := *s
+				new := s
 				new.room[room][slot] = 0
 				new.room[destinationRoom][destinationSlot] = amphipod
-				result = append(result, Item{new, weights[amphipod] * getRoomToRoomDistance(room, slot, destinationRoom, destinationSlot)})
+				result = append(result, Item[state]{new, weights[amphipod] * getRoomToRoomDistance(room, slot, destinationRoom, destinationSlot)})
 				continue // if we can go strait to the destination, let's not waste time on other possibilities
 			}
 			for targetHallway, h := range s.hallway {
@@ -129,10 +131,10 @@ func (s *state) getAllPossibleMoves() (result []Item) {
 					continue
 				}
 				if s.canMoveBetweenHallwayAndRoom(targetHallway, room) {
-					new := *s
+					new := s
 					new.room[room][slot] = 0
 					new.hallway[targetHallway] = amphipod
-					result = append(result, Item{new, weights[amphipod] * getDistance(targetHallway, room, slot)})
+					result = append(result, Item[state]{new, weights[amphipod] * getDistance(targetHallway, room, slot)})
 				}
 			}
 		}
@@ -141,13 +143,13 @@ func (s *state) getAllPossibleMoves() (result []Item) {
 }
 
 func solve(start state) int {
-	final := state{room: [4][2]rune{{'A', 'A'}, {'B', 'B'}, {'C', 'C'}, {'D', 'D'}}}
+	final := state{room: [4][roomSlots]rune{{'A', 'A'}, {'B', 'B'}, {'C', 'C'}, {'D', 'D'}}}
 	dist := map[state]int{start: 0}
-	q := make(PriorityQueue, 1)
-	q[0] = &Item{start, 0}
+	q := make(PriorityQueue[state], 1)
+	q[0] = Item[state]{start, 0}
 	heap.Init(&q)
 	for {
-		u := heap.Pop(&q).(*Item)
+		u := heap.Pop(&q).(Item[state])
 		if u.value == final {
 			return dist[u.value]
 		}
@@ -155,7 +157,7 @@ func solve(start state) int {
 			alt := dist[u.value] + v.priority
 			if i, ok := dist[v.value]; !ok || alt < i {
 				dist[v.value] = alt
-				heap.Push(&q, &Item{v.value, alt})
+				heap.Push(&q, Item[state]{v.value, alt})
 			}
 		}
 	}
