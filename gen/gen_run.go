@@ -33,18 +33,15 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		data.LatestDay = day
 		part, err := strconv.Atoi(file[10:11])
 		if err != nil {
 			panic(err)
 		}
-		data.LatestPart = part
 		i := strings.Index(file[11:], ".")
 		variant := file[11 : 11+i]
-		data.LatestVariant = variant
 		if day != previousDay {
 			previousDay = day
-			data.Days = append(data.Days, runDataElement{Day: day})
+			data.Days = append(data.Days, runDataDay{Day: day})
 		}
 		currentDay := &data.Days[len(data.Days)-1]
 		currentPart := runDataPart{Part: part, Variant: variant}
@@ -54,7 +51,9 @@ func main() {
 	if err := t.Execute(cf, data); err != nil {
 		log.Fatal(err)
 	}
-	for i := 1; i <= data.LatestDay; i++ {
+	// This is so that download input command does not fail on missing days	/
+	// TODO: This really does not belong here and should be move with the downloading code
+	for i := 1; i <= data.Days[len(data.Days)-1].Day; i++ {
 		if err := os.Mkdir(fmt.Sprintf("day%02d", i), normalMode); err != nil && !os.IsExist(err) {
 			log.Fatal(err)
 		}

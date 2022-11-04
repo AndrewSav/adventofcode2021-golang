@@ -25,8 +25,8 @@ github.com/stretchr/testify v1.5.1 h1:nOGnQDM7FYENwehXlg/kFVnos3rEvtKTjRvOWSzb6H
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/zalando/go-keyring v0.2.1 h1:MBRN/Z8H4U5wEKXiD67YbDAr5cj/DOStmSga70/2qKc=
 github.com/zalando/go-keyring v0.2.1/go.mod h1:g63M2PPn0w5vjmEbwAX3ib5I+41zdm4esSETOn9Y6Dw=
-github.com/zellyn/kooky v0.0.0-20220429214451-68fd0a98b521 h1:whJ5LV+cjrc5iIB7C/3lpAtQNSqu/iifRliL8ct948o=
-github.com/zellyn/kooky v0.0.0-20220429214451-68fd0a98b521/go.mod h1:6JjIozsIKDJ2H0S0ePLIoVbhhBvI15a/oFlMYsfIsSA=
+github.com/zellyn/kooky v0.0.0-20221025221128-3e66d684c4db h1:GiYcv6tEo8yme647CfG3tUydWi7LQG55oNb5bZ2ZeUM=
+github.com/zellyn/kooky v0.0.0-20221025221128-3e66d684c4db/go.mod h1:6JjIozsIKDJ2H0S0ePLIoVbhhBvI15a/oFlMYsfIsSA=
 golang.org/x/crypto v0.0.0-20220408190544-5352b0902921 h1:iU7T1X1J6yxDr0rda54sWGkHgOp5XJrqm79gcNlC2VM=
 golang.org/x/crypto v0.0.0-20220408190544-5352b0902921/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 golang.org/x/net v0.0.0-20220407224826-aac1ed45d8e3 h1:EN5+DfgmRMvRUrMGERW2gQl3Vc+Z7ZMnI/xdEpPSf0c=

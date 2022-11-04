@@ -6,6 +6,8 @@ import (
 	"container/heap"
 )
 
+//type state struct{}
+
 // An Item is something we manage in a priority queue.
 type Item struct {
 	value    *state // The value of the item; arbitrary.

@@ -5,16 +5,13 @@ type runDataPart struct {
 	Variant string
 }
 
-type runDataElement struct {
+type runDataDay struct {
 	Day   int
 	Parts []runDataPart
 }
 
 type runData struct {
-	Days          []runDataElement
-	LatestDay     int
-	LatestPart    int
-	LatestVariant string
+	Days []runDataDay
 }
 
 const (
@@ -25,9 +22,34 @@ import (
 {{- range $d := .Days }}
 	"aoc2021/day{{ printf "%02d" $d.Day }}"
 {{- end }}
-	"aoc2021/util"
 	"log"
 )
+
+type runDataPart struct {
+	Part    int
+	Variant string
+}
+
+type runDataDay struct {
+	Day   int
+	Parts []runDataPart
+}
+
+var days = []runDataDay{
+{{- range $d := .Days }}
+	{
+		Day: {{ $d.Day }},
+		Parts: []runDataPart{
+{{- range $p := $d.Parts }}
+			{
+				Part: {{ $p.Part }},
+				Variant: "{{ $p.Variant }}",
+			},
+{{- end}}
+		},
+	},
+{{- end}}
+}
 
 func run(day, part int, variant string, inputFile string) (string, int, int, string) {
 	switch day {
@@ -46,22 +68,6 @@ func run(day, part int, variant string, inputFile string) (string, int, int, str
 		log.Fatalf("Unknown  day %d", day)
 	}
 	panic("unexpected code path")
-}
-
-func getRunAll() (result []func() (string, int, int, string)) {
-{{- range $d := .Days }}
-{{- range $p := $d.Parts }}
-	result = append(result, func() (string, int, int, string) { return run({{ $d.Day }}, {{ $p.Part }}, "{{ $p.Variant }}", util.GetDefautInputFilePath({{ $d.Day }}))})
-{{- end }}
-{{- end }}
-	return
-}
-
-func getLatest() (day int, part int, variant string) {
-	day = {{ .LatestDay }}
-	part = {{ .LatestPart }}
-	variant = "{{ .LatestVariant }}"
-	return
 }
 `
 )

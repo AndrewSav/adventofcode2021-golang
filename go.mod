@@ -2,7 +2,7 @@ module aoc2021
 
 go 1.19
 
-require github.com/zellyn/kooky v0.0.0-20220429214451-68fd0a98b521
+require github.com/zellyn/kooky v0.0.0-20221025221128-3e66d684c4db
 
 require (
 	github.com/go-sqlite/sqlite3 v0.0.0-20180313105335-53dd8e640ee7 // indirect

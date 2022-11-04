@@ -95,6 +95,9 @@ func getDistance(from, to floorNode) int {
 func (s *state) getPossibleMoves(a amphipod) (result []moveInfo) {
 	var targets []floorNode
 	start := s.amphipodToFloorNode[a]
+	//if start.y != 0 {
+	//	destinations[a.kind]
+	//}
 	if start.y == 0 {
 		targets = rooms
 	} else {
@@ -141,28 +144,30 @@ func (s *state) getAllPossibleMoves() (result []moveInfo) {
 }
 
 func (s *state) move(m moveInfo) (result *state) {
-	energy := m.length * weights[m.amphipod.kind]
-	previousCumulativeEnergy := 0
+	/*
+		energy := m.length * weights[m.amphipod.kind]
+		previousCumulativeEnergy := 0
 
-	if len(s.steps) > 0 {
-		previousCumulativeEnergy = s.steps[len(s.steps)-1].cumulativeEnergy
-	}
+		if len(s.steps) > 0 {
+			previousCumulativeEnergy = s.steps[len(s.steps)-1].cumulativeEnergy
+		}
 
-	stp := step{
-		moveInfo:         m,
-		source:           s.amphipodToFloorNode[m.amphipod],
-		energy:           energy,
-		cumulativeEnergy: energy + previousCumulativeEnergy,
-		previousState:    s,
-	}
+		stp := step{
+			moveInfo:         m,
+			source:           s.amphipodToFloorNode[m.amphipod],
+			energy:           energy,
+			cumulativeEnergy: energy + previousCumulativeEnergy,
+			previousState:    s,
+		}
+	*/
 	result = &state{
-		steps:               make([]step, len(s.steps)),
+		//steps:               make([]step, len(s.steps)),
 		amphipodToFloorNode: make(map[amphipod]floorNode),
 		floorNodeToAmphipod: make(map[floorNode]amphipod),
 	}
-	stp.state = result
-	copy(result.steps, s.steps)
-	result.steps = append(result.steps, stp)
+	//stp.state = result
+	//copy(result.steps, s.steps)
+	//result.steps = append(result.steps, stp)
 	//TODO: review
 	start := s.amphipodToFloorNode[m.amphipod]
 	for k, v := range s.floorNodeToAmphipod {
@@ -254,6 +259,7 @@ func (s *state) dump() {
 
 }
 
+/*
 type step struct {
 	moveInfo
 	source           floorNode
@@ -262,58 +268,16 @@ type step struct {
 	state            *state
 	previousState    *state
 }
+*/
 
 type state struct {
-	steps               []step
+	//steps               []step
 	floorNodeToAmphipod map[floorNode]amphipod
 	amphipodToFloorNode map[amphipod]floorNode
 	hash                string
 	//final               bool
 }
 
-//var floorNodeToAmphipod = map[floorNode]amphipod{}
-//var amphipodToFloorNode = map[amphipod]floorNode{}
-
-/*
-func bla(start *state) {
-
-		best := MaxInt
-
-		stack := [](*state){start}
-		for len(stack) > 0 {
-			//fmt.Printf("stack: %d\n", len(stack))
-			s := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-			//fmt.Printf("steps: %d\n", len(s.steps))
-			//s.dump()
-			moves := s.getAllPossibleMoves()
-			if len(moves) == 0 {
-				//fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-			}
-			for _, move := range moves {
-				next := s.move(move)
-				if next.areWeThereYet() {
-					en := next.steps[len(next.steps)-1].cumulativeEnergy
-					min := util.Min(best, en)
-					if min < best {
-						fmt.Printf("found %d, steps %d\n", en, len(next.steps))
-						best = min
-						temp := start
-						temp.dump()
-						for _, z := range next.steps {
-							temp = temp.move(z.moveInfo)
-							temp.dump()
-							fmt.Printf("%d %d\n", z.energy, z.cumulativeEnergy)
-						}
-					}
-
-				} else {
-					stack = append(stack, next)
-				}
-			}
-		}
-	}
-*/
 func bla(start *state) int {
 	dist := map[*state]int{start: 0}
 	lookup := map[string]*state{start.getHash(): start}
@@ -332,7 +296,8 @@ func bla(start *state) int {
 		}
 		for _, v := range u.value.getAllPossibleMoves() {
 			next := u.value.move(v)
-			energy := next.steps[len(next.steps)-1].energy
+			//energy := next.steps[len(next.steps)-1].energy
+			energy := v.length * weights[v.amphipod.kind]
 			alt := dist[u.value] + energy
 
 			if old, ok := lookup[next.getHash()]; !ok || alt < dist[old] {
@@ -355,6 +320,7 @@ func bla(start *state) int {
 }
 
 func Part1(inputFile string) string {
+	//defer profile.Start(profile.ProfilePath(".")).Stop()
 
 	a1 := amphipod{'A', 1}
 	a2 := amphipod{'A', 2}

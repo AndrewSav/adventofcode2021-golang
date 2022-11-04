@@ -24,18 +24,38 @@ func main() {
 		}
 	}
 
-	latestDay, latestPart, latestVariant := getLatest()
-
 	if flags.Day == 0 {
-		flags.Day = latestDay
+		flags.Day = days[len(days)-1].Day
 	}
 
 	if flags.Part == 0 {
-		flags.Part = latestPart
+		for _, day := range days {
+			if day.Day == flags.Day {
+				flags.Part = day.Parts[len(day.Parts)-1].Part
+				break
+			}
+		}
 	}
 
 	if flags.Variant == "" {
-		flags.Variant = latestVariant
+		for _, day := range days {
+			if day.Day == flags.Day {
+				partFound := false
+				for _, part := range day.Parts {
+					if !partFound && flags.Part == part.Part {
+						partFound = true
+					}
+					if partFound {
+						if flags.Part == part.Part {
+							flags.Variant = part.Variant
+						} else {
+							break
+						}
+					}
+				}
+				break
+			}
+		}
 	}
 
 	if flags.InputFile == "" {
@@ -51,7 +71,7 @@ func main() {
 		flags.Verbose = true
 		solutions = getRunAll()
 		if flags.DownloadInput {
-			for d := 1; d <= latestDay; d++ {
+			for d := 1; d <= days[len(days)-1].Day; d++ {
 				util.DownloadInput(flags.SessionCookie, d, util.GetDefautInputFilePath(d))
 			}
 		}
@@ -74,4 +94,15 @@ func main() {
 		}
 
 	}
+}
+
+func getRunAll() (result []func() (string, int, int, string)) {
+	for _, day := range days {
+		for _, part := range day.Parts {
+			result = append(result, func() (string, int, int, string) {
+				return run(day.Day, part.Part, part.Variant, util.GetDefautInputFilePath(day.Day))
+			})
+		}
+	}
+	return
 }
