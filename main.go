@@ -99,8 +99,9 @@ func main() {
 func getRunAll() (result []func() (string, int, int, string)) {
 	for _, day := range days {
 		for _, part := range day.Parts {
+			day, part, variant := day.Day, part.Part, part.Variant // prevent variable capture in the closure
 			result = append(result, func() (string, int, int, string) {
-				return run(day.Day, part.Part, part.Variant, util.GetDefautInputFilePath(day.Day))
+				return run(day, part, variant, util.GetDefautInputFilePath(day))
 			})
 		}
 	}
