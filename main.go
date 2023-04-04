@@ -15,7 +15,7 @@ func main() {
 	flags := util.ParseArgs()
 
 	if flags.PrintSessionCooike {
-		cookie, err := util.GetChromeCookie()
+		cookie, err := util.GetBrowserCookie()
 		if err != nil {
 			log.Fatalf("%v", err)
 		} else {

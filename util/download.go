@@ -8,12 +8,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/zellyn/kooky"
-	"github.com/zellyn/kooky/browser/chrome"
+	_ "github.com/zellyn/kooky/browser/all"
 )
 
 const cookieTemplate = `{
@@ -33,56 +31,25 @@ const cookieTemplate = `{
 
 var normalMode = os.FileMode(0644)
 
-func chromeCookiePath() (string, error) {
-	if p, set := os.LookupEnv("CHROME_COOKIES_PATH"); set {
-		return p, nil
-	}
-
-	if runtime.GOOS == "windows" {
-		localAppData, err := os.UserCacheDir()
-		return filepath.Join(localAppData, "Google", "Chrome", "User Data", "Default", "Network", "Cookies"), err
-	}
-
-	if runtime.GOOS == "linux" {
-		config, err := os.UserConfigDir()
-		return filepath.Join(config, "google-chrome", "Default", "Cookies"), err
-	}
-
-	return "", fmt.Errorf("chrome cookie path for GOOS %s not implemented, set CHROME_COOKIES_PATH instead", runtime.GOOS)
-}
-
 func tryGetCookieFromFile() (string, error) {
 	data, err := os.ReadFile("cookie.txt")
 	return strings.Trim(string(data), "\r\n"), err
 }
 
-func GetChromeCookie() (string, error) {
-	cookiePath, err := chromeCookiePath()
-	if err != nil {
-		return "", err
+func GetBrowserCookie() (string, error) {
+	cookies := kooky.ReadCookies(kooky.Valid, kooky.DomainHasSuffix(`.adventofcode.com`), kooky.Name(`session`))
+	for _, cookie := range cookies {
+		return cookie.Value, nil
 	}
-
-	cookies, err := chrome.ReadCookies(cookiePath, kooky.Valid, kooky.Name("session"), kooky.Domain(".adventofcode.com"))
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return "", fmt.Errorf("CHROME_COOKIES_PATH can be used to set path: %v", err)
-		}
-		return "", err
-	}
-
-	if len(cookies) != 1 {
-		return "", fmt.Errorf("session cookie not found or too many results. Got %d, want 1, ensure that you are logged in", len(cookies))
-	}
-
-	return cookies[0].Cookie.Value, nil
+	return "", fmt.Errorf("cookie not found")
 }
 
 func TryGetCookie() string {
 	cookie, err := tryGetCookieFromFile()
 	if err != nil {
-		cookie, err2 := GetChromeCookie()
+		cookie, err2 := GetBrowserCookie()
 		if err2 != nil {
-			log.Fatalf("unable to find cookie: failed to get cookie from file: %v; failed to get cookie from chrome: %v", err, err2)
+			log.Fatalf("unable to find cookie: failed to get cookie from file: %v; failed to get cookie from browser: %v", err, err2)
 		}
 		return cookie
 	}
