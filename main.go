@@ -15,9 +15,9 @@ func main() {
 	flags := util.ParseArgs()
 
 	if flags.PrintSessionCooike {
-		cookie, err := util.GetBrowserCookie()
-		if err != nil {
-			log.Fatalf("%v", err)
+		cookie := util.GetBrowserCookie()
+		if cookie == "" {
+			log.Fatalf("failed to get cookie from browser")
 		} else {
 			fmt.Println(cookie)
 			os.Exit(0)
@@ -63,7 +63,11 @@ func main() {
 	}
 
 	if flags.DownloadInput && flags.SessionCookie == "" {
-		flags.SessionCookie = util.TryGetCookie()
+		cookie, err := util.TryGetCookie()
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
+		flags.SessionCookie = cookie
 	}
 
 	var solutions []func() (string, int, int, string)

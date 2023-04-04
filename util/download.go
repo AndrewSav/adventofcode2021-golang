@@ -36,24 +36,23 @@ func tryGetCookieFromFile() (string, error) {
 	return strings.Trim(string(data), "\r\n"), err
 }
 
-func GetBrowserCookie() (string, error) {
+func GetBrowserCookie() string {
 	cookies := kooky.ReadCookies(kooky.Valid, kooky.DomainHasSuffix(`.adventofcode.com`), kooky.Name(`session`))
 	for _, cookie := range cookies {
-		return cookie.Value, nil
+		return cookie.Value
 	}
-	return "", fmt.Errorf("cookie not found")
+	return ""
 }
 
-func TryGetCookie() string {
+func TryGetCookie() (string, error) {
 	cookie, err := tryGetCookieFromFile()
 	if err != nil {
-		cookie, err2 := GetBrowserCookie()
-		if err2 != nil {
-			log.Fatalf("unable to find cookie: failed to get cookie from file: %v; failed to get cookie from browser: %v", err, err2)
+		cookie = GetBrowserCookie()
+		if cookie == "" {
+			return "", fmt.Errorf("unable to find cookie: failed to get cookie from file: %v; failed to get cookie from browser", err)
 		}
-		return cookie
 	}
-	return cookie
+	return cookie, nil
 }
 
 func DownloadInput(cookie string, day int, inputFile string) {
