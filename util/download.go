@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mattn/godown"
 	"github.com/zellyn/kooky"
 	_ "github.com/zellyn/kooky/browser/all"
 )
@@ -91,5 +93,71 @@ func DownloadInput(cookie string, day int, inputFile string) {
 	err = os.WriteFile(inputFile, body, normalMode)
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func DownloadDescriptions(cookie string) {
+	for i := 1; i <= 25; i++ {
+		fmt.Printf("Downloading day %d\n", i)
+		url := fmt.Sprintf("https://adventofcode.com/2021/day/%d", i)
+		outputFile := fmt.Sprintf("day%02d.md", i)
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			panic(err)
+		}
+		if cookie != "" {
+			var sessionToken http.Cookie
+			json.Unmarshal([]byte(strings.ReplaceAll(cookieTemplate, `%value%`, cookie)), &sessionToken)
+			req.AddCookie(&sessionToken)
+		}
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			body, _ := io.ReadAll(resp.Body)
+			log.Fatalf("unexpected status code %s downloading %s: %s", resp.Status, url, body)
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		startMarker := "<article"
+		stopMarker := "</article>"
+
+		data := string(body)
+		f, err := os.Create(outputFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+		w := bufio.NewWriter(f)
+		defer w.Flush()
+
+		for {
+			index := strings.Index(data, startMarker)
+
+			if index < 0 {
+				break
+			}
+			data = data[index:]
+			index = strings.Index(data, stopMarker)
+			if index < 0 {
+				break
+			}
+			block := data[:index+len(stopMarker)]
+			data = data[index+len(stopMarker):]
+
+			err := godown.Convert(w, strings.NewReader(block), &godown.Option{})
+
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
 	}
 }

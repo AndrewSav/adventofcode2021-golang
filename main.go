@@ -14,6 +14,10 @@ func main() {
 
 	flags := util.ParseArgs()
 
+	if flags.PrintSessionCooike && flags.DownloadDescriptions {
+		log.Fatalf("flags -q and -p are incompatible")
+	}
+
 	if flags.PrintSessionCooike {
 		cookie := util.GetBrowserCookie()
 		if cookie == "" {
@@ -22,6 +26,15 @@ func main() {
 			fmt.Println(cookie)
 			os.Exit(0)
 		}
+	}
+
+	if flags.DownloadDescriptions {
+		cookie := flags.SessionCookie
+		if cookie == "" {
+			cookie, _ = util.TryGetCookie()
+		}
+		util.DownloadDescriptions(cookie)
+		os.Exit(0)
 	}
 
 	if flags.Day == 0 {
