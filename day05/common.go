@@ -15,7 +15,7 @@ func parseLine(s string) image.Rectangle {
 	if rr == nil {
 		log.Fatalf("cannot parse '%s'", s)
 	}
-	return image.Rect(util.MustAtoi(rr[1]), util.MustAtoi(rr[2]), util.MustAtoi(rr[3]), util.MustAtoi(rr[4]))
+	return image.Rectangle{image.Pt(util.MustAtoi(rr[1]), util.MustAtoi(rr[2])), image.Pt(util.MustAtoi(rr[3]), util.MustAtoi(rr[4]))}
 }
 
 type myImage struct {
