@@ -46,7 +46,7 @@ func ParseArgs() Flags {
 	fs.StringVar(&flags.InputFile, "i", "", fmt.Sprintf("path to the problem input `/path/to/input.txt`. If not specified defaults to '%s', where XX is the day selected", filepath.FromSlash("dayXX/input.txt")))
 	fs.StringVar(&flags.SessionCookie, "s", "", "used with -d or -p to provide `session_cookie` to authenticate with the Advent Of Code web site. Ignored otherwise")
 
-	fs.BoolVar(&flags.DownloadDescriptions, "p", false, "downloads puzzles descriptions in markfown format. Note that the puzzle text differs depending on whether you provide a session cookie or not, and when you provide it depending on your progress. If this is specified, all other arguments and flags, except for -s, are ignored")
+	fs.BoolVar(&flags.DownloadDescriptions, "p", false, "downloads puzzles descriptions in markdown format. Note that the puzzle text differs depending on whether you provide a session cookie or not, and when you provide it depending on your progress. If this is specified, all other arguments and flags, except for -s, are ignored")
 
 	fs.Parse(os.Args[1:])
 
