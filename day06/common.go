@@ -18,24 +18,11 @@ func tick(m [9]int64) (result [9]int64) {
 	return
 }
 
-// This is an optimisation, which in this case was not nescessary at all
-// Does the same as calling `tick` 7 times, but faster. Not used
-func tick7(m [9]int) (result [9]int) {
-	result = m
-	for i, n := range m {
-		if i > 6 {
-			result[i] -= n
-			result[i%7] += n
-		} else {
-			result[i+2] += n
-		}
-	}
-	return
-}
-
 func solve(inputFile string, days int) string {
 	lines := util.ReadInput(inputFile)
 	ff := util.AtoiSlice(strings.Split(lines[0], ","))
+	// the trick is not to track each individual fish, but each group of fish
+	// with the same cycle offset. 0-8 are all possible offsets
 	m := [9]int64{}
 	for _, f := range ff {
 		m[f]++

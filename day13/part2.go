@@ -7,14 +7,17 @@ import (
 
 func Part2(inputFile string) string {
 	points, folds := readData(inputFile)
+	// execute all folds
 	for _, f := range folds {
 		points = fold(f, points)
 	}
+	// find the bounds of the resulting "image"
 	var maxx, maxy int
 	for _, p := range points {
 		maxx = util.Max(maxx, p.x)
 		maxy = util.Max(maxy, p.y)
 	}
+	// initialize "image" array
 	plot := make([][]rune, maxy+1)
 	for y := range plot {
 		plot[y] = make([]rune, maxx+1)
@@ -22,8 +25,10 @@ func Part2(inputFile string) string {
 			plot[y][x] = '.'
 		}
 	}
+	// plot the "image" into the array
 	for _, p := range points {
 		plot[p.y][p.x] = '#'
 	}
+	// OCR the image and return the result
 	return fmt.Sprint(util.OCR2021Day13Part2(plot))
 }

@@ -3,10 +3,10 @@ package day03
 import (
 	"aoc2021/util"
 	"fmt"
-	"log"
 	"strconv"
 )
 
+// return qualified lines either for oxygen generator or for CO2 scrubber
 func splitWtihRule(input []string, pos int, isOxy bool) []string {
 	ones, zeroes := split(input, pos)
 	if (len(ones) >= len(zeroes) && isOxy) || (len(ones) < len(zeroes) && !isOxy) {
@@ -16,13 +16,9 @@ func splitWtihRule(input []string, pos int, isOxy bool) []string {
 	}
 }
 
-func toNum(s string) int {
-	if i, err := strconv.ParseInt(s, 2, 32); err != nil {
-		log.Fatalf("cannot convert string '%s' to a binary number: %v", s, err)
-	} else {
-		return int(i)
-	}
-	panic("unexpected code path")
+func toNum(s string) int { // binary strting to integer
+	i, _ := strconv.ParseInt(s, 2, 32)
+	return int(i)
 }
 
 func Part2(inputFile string) string {
@@ -36,9 +32,6 @@ func Part2(inputFile string) string {
 		if len(co2Set) > 1 {
 			co2Set = splitWtihRule(co2Set, pos, false)
 		}
-	}
-	if len(oxySet) != 1 || len(co2Set) != 1 {
-		panic(fmt.Errorf("want 1 of each oxySet, co2Set, have oxySet: %s, co2Set: %s\n", len(oxySet), len(co2Set)))
 	}
 	return fmt.Sprint(toNum(oxySet[0]) * toNum(co2Set[0]))
 }

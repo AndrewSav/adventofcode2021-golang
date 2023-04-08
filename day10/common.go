@@ -20,7 +20,7 @@ func solveInner(inputFile string) (int, int64) {
 		'}': 1197,
 		'>': 25137,
 	}
-	autoScores := map[rune]int{
+	autoCompleteScores := map[rune]int{
 		')': 1,
 		']': 2,
 		'}': 3,
@@ -34,39 +34,40 @@ func solveInner(inputFile string) (int, int64) {
 	}
 	lines := util.ReadInput(inputFile)
 	resultSyntax := 0
-	resultsAuto := []int64{}
+	resultsAutoComplete := []int64{}
 	for _, l := range lines {
 		s := stack{}
 		broken := false
 		for _, c := range l {
-			switch c {
+			switch c { // if it's an opening character push it onto stack and go to the next one
 			case '(', '[', '{', '<':
 				s = append(s, c)
 				continue
 			}
-			if pairs[s.Pop()] != c {
+			if pairs[s.Pop()] != c { // see if the closing character that we got matches the openning character that we expect
 				resultSyntax += syntaxScores[c]
 				broken = true
 				break
 			}
 		}
-		if !broken {
+		if !broken { // if there was no syntax error, now pop all the remaining unclosed character and calculate closing score
 			count := int64(0)
 			for len(s) > 0 {
-				count = count*5 + int64(autoScores[pairs[s.Pop()]])
+				count = count*5 + int64(autoCompleteScores[pairs[s.Pop()]])
 			}
-			resultsAuto = append(resultsAuto, count)
+			resultsAutoComplete = append(resultsAutoComplete, count)
 		}
 	}
-	sort.Slice(resultsAuto, func(i, j int) bool { return resultsAuto[i] < resultsAuto[j] })
-	return resultSyntax, resultsAuto[len(resultsAuto)/2]
+	// getting the middle score
+	sort.Slice(resultsAutoComplete, func(i, j int) bool { return resultsAutoComplete[i] < resultsAutoComplete[j] })
+	return resultSyntax, resultsAutoComplete[len(resultsAutoComplete)/2]
 }
 
 func solve(inputFile string, syntax bool) string {
-	resultSyntax, resultAuto := solveInner(inputFile)
+	resultSyntax, resultAutoComplete := solveInner(inputFile)
 	if syntax {
 		return fmt.Sprint(resultSyntax)
 	} else {
-		return fmt.Sprint(resultAuto)
+		return fmt.Sprint(resultAutoComplete)
 	}
 }

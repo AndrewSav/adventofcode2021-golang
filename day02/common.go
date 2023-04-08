@@ -3,7 +3,6 @@ package day02
 import (
 	"aoc2021/util"
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 )
@@ -11,7 +10,7 @@ import (
 type data struct {
 	hpos  int
 	depth int
-	aim   int
+	aim   int //aim is only used in part 2
 }
 
 type mutator func(*data, int)
@@ -20,15 +19,9 @@ func solve(inputFile string, up, down, forward mutator) string {
 	var data data
 	lines := util.ReadInput(inputFile)
 	r := regexp.MustCompile(`^(forward|down|up) (\d)$`)
-	for index, l := range lines {
+	for _, l := range lines {
 		match := r.FindStringSubmatch(l)
-		if match == nil {
-			log.Fatalf("line %d '%s' cannot be matched", index, l)
-		}
-		i, err := strconv.Atoi(match[2])
-		if err != nil {
-			panic(err)
-		}
+		i, _ := strconv.Atoi(match[2])
 		switch match[1] {
 		case "up":
 			up(&data, i)

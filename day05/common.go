@@ -5,20 +5,18 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"log"
 	"regexp"
 )
 
 func parseLine(s string) image.Rectangle {
 	r := regexp.MustCompile(`^(\d{1,3}),(\d{1,3}) -> (\d{1,3}),(\d{1,3})$`)
 	rr := r.FindStringSubmatch(s)
-	if rr == nil {
-		log.Fatalf("cannot parse '%s'", s)
-	}
 	return image.Rectangle{image.Pt(util.MustAtoi(rr[1]), util.MustAtoi(rr[2])), image.Pt(util.MustAtoi(rr[3]), util.MustAtoi(rr[4]))}
 }
 
 type myImage struct {
+	// we are using this type to represent how many lines go through a given point, using the gray value for that number
+	// this saves us defining our own structure
 	image.Gray
 }
 
@@ -27,20 +25,20 @@ func newImage(r image.Rectangle) *myImage {
 }
 
 func (img *myImage) drawOrthogonal(r image.Rectangle) {
-	if r := r.Canon(); r.Min.Y == r.Max.Y {
+	if r := r.Canon(); r.Min.Y == r.Max.Y { // horizontal line
 		for ; r.Min.X <= r.Max.X; r.Min.X++ {
-			img.SetGray(r.Min.X, r.Min.Y, color.Gray{img.GrayAt(r.Min.X, r.Min.Y).Y + 1})
+			img.SetGray(r.Min.X, r.Min.Y, color.Gray{img.GrayAt(r.Min.X, r.Min.Y).Y + 1}) // increment each point
 		}
 	}
-	if r := r.Canon(); r.Min.X == r.Max.X {
+	if r := r.Canon(); r.Min.X == r.Max.X { // vertical line
 		for ; r.Min.Y <= r.Max.Y; r.Min.Y++ {
-			img.SetGray(r.Min.X, r.Min.Y, color.Gray{img.GrayAt(r.Min.X, r.Min.Y).Y + 1})
+			img.SetGray(r.Min.X, r.Min.Y, color.Gray{img.GrayAt(r.Min.X, r.Min.Y).Y + 1}) // increment each point
 		}
 	}
 }
 
 func (img *myImage) drawDiagonal(r image.Rectangle) {
-	if util.Abs(r.Min.Y-r.Max.Y) == util.Abs(r.Min.X-r.Max.X) {
+	if util.Abs(r.Min.Y-r.Max.Y) == util.Abs(r.Min.X-r.Max.X) { // diagonal line
 		stepx, stepy := 1, 1
 		if r.Min.Y > r.Max.Y {
 			stepy = -1
@@ -49,7 +47,7 @@ func (img *myImage) drawDiagonal(r image.Rectangle) {
 			stepx = -1
 		}
 		for ; r.Min.X != r.Max.X; r.Min.X, r.Min.Y = r.Min.X+stepx, r.Min.Y+stepy {
-			img.SetGray(r.Min.X, r.Min.Y, color.Gray{img.GrayAt(r.Min.X, r.Min.Y).Y + 1})
+			img.SetGray(r.Min.X, r.Min.Y, color.Gray{img.GrayAt(r.Min.X, r.Min.Y).Y + 1}) // increment each point
 		}
 		img.SetGray(r.Min.X, r.Min.Y, color.Gray{img.GrayAt(r.Min.X, r.Min.Y).Y + 1})
 	}
@@ -58,14 +56,14 @@ func (img *myImage) drawDiagonal(r image.Rectangle) {
 func solve(inputFile string, includeDiagonal bool) string {
 	lines := util.ReadInput(inputFile)
 	data := []image.Rectangle{}
-	bound := image.Rectangle{}
+	bounds := image.Rectangle{}
 	for _, l := range lines {
 		item := parseLine(l)
-		data = append(data, item)
-		bound = bound.Union(item.Canon())
+		data = append(data, item) // collects all input lines in `data` array
+		// Union cannot combine "empty" rectangles (horizontal and vertical lines), so we are using Inset to make them non empty
+		bounds = bounds.Union(item.Canon().Inset(-1)) // and also determines the combined boundss of all lines
 	}
-	bound = bound.Inset(-1)
-	img := newImage(bound)
+	img := newImage(bounds)
 	for _, d := range data {
 		img.drawOrthogonal(d)
 		if includeDiagonal {
@@ -73,8 +71,8 @@ func solve(inputFile string, includeDiagonal bool) string {
 		}
 	}
 	count := 0
-	for x := bound.Min.X; x <= bound.Max.X; x++ {
-		for y := bound.Min.Y; y <= bound.Max.Y; y++ {
+	for x := bounds.Min.X; x <= bounds.Max.X; x++ {
+		for y := bounds.Min.Y; y <= bounds.Max.Y; y++ {
 			if img.GrayAt(x, y).Y > 1 {
 				count++
 			}
