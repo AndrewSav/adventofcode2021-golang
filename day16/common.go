@@ -28,8 +28,8 @@ type literal struct {
 
 type operator struct {
 	header
-	lengthTypeId int
-	length       int
+	lengthTypeId int // 0 or 1
+	length       int // different meaning depending on the value of lengthTypeId as per puzzle description
 	subPackets   []packet
 }
 
@@ -39,15 +39,15 @@ type packet interface {
 	getValue() int64
 }
 
-func toNum(s string) int {
+func bitStringToNum(s string) int {
 	i, _ := strconv.ParseInt(s, 2, 32)
 	return int(i)
 }
 
 type bitStream string
 
-func (b *bitStream) get(width int) int {
-	result := toNum(string((*b)[:width]))
+func (b *bitStream) getBits(width int) int {
+	result := bitStringToNum(string((*b)[:width]))
 	*b = (*b)[width:]
 	return result
 }
@@ -55,22 +55,22 @@ func (b *bitStream) get(width int) int {
 func (b *bitStream) parseLiteral(h header) packet {
 	value, stop := int64(0), false
 	for !stop {
-		stop = b.get(1) == 0
-		value = value*16 + int64(b.get(4))
+		stop = b.getBits(1) == 0
+		value = value*16 + int64(b.getBits(4))
 	}
 	return &literal{header: h, value: value}
 }
 
 func (b *bitStream) parseOperator(h header) packet {
-	result := operator{header: h, lengthTypeId: b.get(1)}
+	result := operator{header: h, lengthTypeId: b.getBits(1)}
 	if result.lengthTypeId == 0 {
-		result.length = b.get(15)
+		result.length = b.getBits(15)
 		targetLength := len(*b) - result.length
 		for len(*b) > targetLength {
 			result.subPackets = append(result.subPackets, b.parse())
 		}
 	} else {
-		result.length = b.get(11)
+		result.length = b.getBits(11)
 		for i := 0; i < result.length; i++ {
 			result.subPackets = append(result.subPackets, b.parse())
 		}
@@ -79,7 +79,7 @@ func (b *bitStream) parseOperator(h header) packet {
 }
 
 func (b *bitStream) parse() packet {
-	h := header{version: b.get(3), typeId: b.get(3)}
+	h := header{version: b.getBits(3), typeId: b.getBits(3)}
 	if h.isLiteral() {
 		return b.parseLiteral(h)
 	} else {
@@ -91,6 +91,7 @@ func loadAndParse(inputFile string) packet {
 	lines := util.ReadInput(inputFile)
 	bytes, _ := hex.DecodeString(lines[0])
 	var sb strings.Builder
+	// We are getting a string of 1's and 0's here
 	for _, b := range bytes {
 		fmt.Fprintf(&sb, "%08b", b)
 	}

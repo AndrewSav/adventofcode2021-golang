@@ -8,7 +8,7 @@ import (
 type state struct {
 	position int   // position of the player's pawn on board
 	score    int   // current player's score
-	forks    int64 // number of universe forks that gets us to the current state
+	forks    int64 // number of all universe forks that can get us to the current state
 	turn     int   // current turn number
 }
 
@@ -18,7 +18,7 @@ type state struct {
 var weights = map[int]int{3: 1, 4: 3, 5: 6, 6: 7, 7: 6, 8: 3, 9: 1}
 
 // j is the initial player position (zero based for convinience)
-// it returns two maps, the key map is the turn number
+// it returns two maps, the map key is the turn number
 // values in the first map are the number of forks that win on that turn
 // values in the second map are the number of forks that do not win on that turn
 // for simplicity in this function we only consider one player's rolls and
@@ -28,7 +28,7 @@ var weights = map[int]int{3: 1, 4: 3, 5: 6, 6: 7, 7: 6, 8: 3, 9: 1}
 // to the same number given each individual player's forks
 func doTheNumbers(j int) (map[int]int64, map[int]int64) {
 	var win = map[int]int64{}
-	var lose = map[int]int64{}
+	var lose = map[int]int64{} // lose means we did not win on this turn, we still may win on a later turn
 	// since forks is multiplicative we initialise it to one
 	stack := []state{{position: j, score: 0, forks: 1}}
 	// this is the standard depth first search
@@ -66,10 +66,10 @@ func Part2(inputFile string) string {
 	// otherwise we should have really found the max keys in the maps first and used that
 	for i := 3; i <= 10; i++ {
 		// first player wins on this turn in the number of his forks that he wins in
-		// multiplied by the number of forks the second player lost on previous turn
+		// multiplied by the number of forks the second player did not win on previous turn
 		firstWinsCount += winFirst[i] * loseSecond[i-1]
 		// second player wins on this turn in the number of his forks that he wins in
-		// multiplied by the number of forks the first player lost on this turn
+		// multiplied by the number of forks the first player did not win on this turn
 		secondWinsCount += winSecond[i] * loseFirst[i]
 	}
 

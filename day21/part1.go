@@ -32,7 +32,7 @@ func Part1(inputFile string) string {
 
 	d := die{}
 	for i := 0; ; i = (i + 1) % 2 {
-		positions[i] = (positions[i]-1+d.next3())%10 + 1
+		positions[i] = (positions[i]-1+d.next3())%10 + 1 // -1 and +1 here is due to the fact that the postitions are not 0-9, but 1-10
 		scores[i] += positions[i]
 		if scores[i] >= 1000 {
 			return fmt.Sprint(scores[(i+1)%2] * d.count)

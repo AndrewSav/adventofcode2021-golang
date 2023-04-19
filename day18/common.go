@@ -2,7 +2,6 @@ package day18
 
 import (
 	"aoc2021/util"
-	"unicode"
 )
 
 type term struct { // either 'value' (const) or 'left' and 'right' (pair) are used in each instance
@@ -34,19 +33,16 @@ func (t *term) getMagnitude() int {
 }
 
 func parse(s string) (result *term) {
-	result, _ = parseInternal(s, 0)
+	result, _ = parseInternal(s)
 	return
 }
 
-func parseInternal(s string, level byte) (*term, string) { // returns the parsed term and the unparsed string reminder
+func parseInternal(s string) (*term, string) { // returns the parsed term and the unparsed string reminder
 	if s[0] == '[' {
-		left, reminder := parseInternal(s[1:], level+1)
-		right, reminder := parseInternal(reminder[1:], level+1)
+		left, reminder := parseInternal(s[1:])
+		right, reminder := parseInternal(reminder[1:])
 		return &term{left: left, right: right}, reminder[1:]
 	} else {
-		i := 0
-		for ; unicode.IsDigit(rune(s[i])); i++ {
-		}
-		return &term{value: util.MustAtoi(s[:i])}, s[i:]
+		return &term{value: util.MustAtoi(s[:1])}, s[1:]
 	}
 }

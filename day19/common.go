@@ -15,6 +15,8 @@ const (
 )
 
 // https://stackoverflow.com/a/58471362/284111
+// There are 24 possible rotations of a kube. If we start from a certain rotation and then
+// apply ones from this array we will cycle through all 24 of them
 var rotations = [...](func(p point) point){
 	point.roll, point.cw, point.cw, point.cw,
 	point.roll, point.acw, point.acw, point.acw,

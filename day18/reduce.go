@@ -20,26 +20,24 @@ func (t *term) reduce() {
 	}
 }
 
-func (t *term) explode(ctx *explodeContext) bool { // returns true if explosion finished in the sub-tree
+func (t *term) explode(ctx *explodeContext) bool { // returns true if explosion happened in the sub-tree
 	if ctx.stage == doneExploding {
 		return true
 	}
-	if t.isConst() {
-		if ctx.stage == waitingForNextRight {
-			t.value += ctx.right
-			ctx.stage = doneExploding
-		} else {
-			ctx.left = t
-		}
-	} else {
-		if ctx.level >= 4 && t.isPlain() && ctx.stage == notExploded {
+	if !t.isConst() { // if pair
+		if ctx.level >= 4 && t.isPlain() && ctx.stage == notExploded { // we just found a pair that will explode
+			// the pair's left value is added to the first regular number to the left of the exploding pair (if any)
 			if ctx.left != nil {
 				ctx.left.value += t.left.value
 			}
+			// We need to add the pair's right value to the first regular number to the right of the exploding pair (if any)
+			// but we do not know yet what this number would be, so we save it to the context until we know
 			ctx.right = t.right.value
+			// the entire exploding pair is replaced with the regular number 0
 			t.left = nil
 			t.right = nil
-			t.value = 0 // strinctly speaking it will always already be 0, but just for clarity
+			t.value = 0 // strictly speaking it will always already be 0, but just for clarity
+			// This means that we are now looking to finish exploding by adding to the first regular number to the right
 			ctx.stage = waitingForNextRight
 		} else {
 			ctx.level++
@@ -47,8 +45,17 @@ func (t *term) explode(ctx *explodeContext) bool { // returns true if explosion 
 			t.right.explode(ctx)
 			ctx.level--
 		}
+	} else {
+		if ctx.stage == waitingForNextRight {
+			// The pair's right value is added to the first regular number to the right of the exploding pair (if any)
+			t.value += ctx.right
+			ctx.stage = doneExploding
+		} else { // ctx.stage == notExploded
+			// keep track of the last number on the left for the potential explosion
+			ctx.left = t
+		}
 	}
-	return ctx.stage == doneExploding
+	return ctx.stage != notExploded // if there is no number on the right of the exploding pair, the stage will remain `waitingForNextRight`
 }
 
 func (t *term) split() bool { // returns true if split has happened in the subtree

@@ -17,7 +17,7 @@ func (q *bucketQueue) add(v *vertex, val int) {
 	if len(*q) < bucketOffset+1 { // if the bucket is not in there yet create it and all buckets in-between
 		*q = append(*q, make([]vertex, bucketOffset+1-len(*q))...)
 	}
-	(*q)[bucketOffset].level = val                                         // for brivety, only needs to be set for new buckets in a loop insude the above if
+	(*q)[bucketOffset].level = val                                         // for brivety, only needs to be set for new buckets in a loop inside the above "if"
 	(*q)[bucketOffset].neighbors = append((*q)[bucketOffset].neighbors, v) //finally add the value to the bucket
 }
 

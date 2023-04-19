@@ -9,6 +9,8 @@ type image struct {
 	infinityValue int // This is what's contained in all cells that we are not keeping track of in .data
 }
 
+// This is getting the number corrsepending to the 3x3 square
+// centered at (x,y) as described in the puzzle
 func (im *image) GetMask(x, y int) int {
 	result := 0
 	for dy := -1; dy <= 1; dy++ {
@@ -20,6 +22,10 @@ func (im *image) GetMask(x, y int) int {
 	return result
 }
 
+// The algorythm runs on ever expanding square, that expand once cell each side
+// every time Enhance is called.
+// start is where in image that sqare starts (both x and y)
+// and dimension is how many cells long is that square side
 func (im *image) Enhance(alg [512]int, start, length int) int {
 	var (
 		onCount  = 0
@@ -31,9 +37,9 @@ func (im *image) Enhance(alg [512]int, start, length int) int {
 	}
 	im.infinityValue = alg[index]
 	for y := 0; y < len(im.data); y++ {
-		newImage[y] = make([]int, len(im.data))
-		for x := start; x < start+length; x++ {
-			if y >= start && y < start+length {
+		newImage[y] = make([]int, len(im.data[y]))
+		if y >= start && y < start+length {
+			for x := start; x < start+length; x++ {
 				bit := alg[im.GetMask(x, y)]
 				newImage[y][x] = bit
 				if bit == 1 {
