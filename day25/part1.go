@@ -20,10 +20,13 @@ func Part1(inputFile string) string {
 	for moved := true; moved; steps++ {
 		moved = false
 
+		// Make next sea state array first
 		nextSea := make([][]rune, len(sea))
 		for i := range nextSea {
-			nextSea[i] = make([]rune, len(sea[0]))
+			nextSea[i] = make([]rune, len(sea[i]))
 		}
+
+		// First right-facing cucumbers move if they can
 		for i, l := range sea {
 			for j, c := range l {
 				if c == '>' && l[(j+1)%len(l)] == 0 {
@@ -36,10 +39,13 @@ func Part1(inputFile string) string {
 		}
 		sea = nextSea
 
+		// Make next sea state array again
 		nextSea = make([][]rune, len(sea))
 		for i := range nextSea {
-			nextSea[i] = make([]rune, len(sea[0]))
+			nextSea[i] = make([]rune, len(sea[i]))
 		}
+
+		// Then down-facing cucumbers move if they can
 		for i, l := range sea {
 			for j, c := range l {
 				if c == 'v' && sea[(i+1)%len(sea)][j] == 0 {

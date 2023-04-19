@@ -39,24 +39,24 @@ if div == 1 {
 }
 
 We have exactly 7 blocks with div = 1, and exactly 7 blocks with div = 26,
-each block with div == 1 addes a digit to z, as described above, the only way the
-final result cac come to zero is if each block with div == 26 removes one digit. For
+each block with div == 1 adds a base-26 digit to z, as described above, the only way the
+final result can come to zero is if each block with div == 26 removes one digit. For
 that to happen `z % 26 + chk == inp` must be true.
 
 To arrange this start with an arbitrary array of 14 inputs denoted
-by [inp_0, inp_1, ..., inp_13]. If the first two instruction blocks
-have shf_0 == 0 and shf_1 == 0 then after the first two inputs two
-bits will have been pushed to the stack:
+by [inp_0, inp_1, ..., inp_13]. Let shf be 0 if div is 1 and be 1 if div is 26.
+If the first two instruction blocks have shf_0 == 0 and shf_1 == 0 then after
+the first two inputs two digit will have been pushed to the stack:
 
     z_stack = [inp_0 + add_0, inp_1 + add_1]
 
-If then shf_2 == 1 we want to set inp_2 so that the last bit is popped.
-The last bit is popped if
+If then shf_2 == 1 we want inp_2 to have a value that would cause the last digit to pop.
+The last digit is popped if
 
-        z.last_bit + chk_2 == inp_2
+        z.last_digit + chk_2 == inp_2
     =>  inp_1 + add_1 + chk_2 == inp_2
 
-So we set (inp_2 = inp_1 + add_1 + chk_2). It can now occur that the
+So we changed inp_2 to be  (inp_2 = inp_1 + add_1 + chk_2). It can now happen that the
 condition 1 <= inp_2 <= 9 is violated. In this case we can add an
 arbitrary value to inp_2 to restore this condition. We will need to
 add the same value to inp_1 too in order to maintain the previous
@@ -64,9 +64,10 @@ equality. We need to be careful that after these adjustments we also
 maintain 1 <= inp_1 <= 9. The least we can do is for cases where
 inp_2 < 1 to choose the value so that inp_2 = 1 and for cases with
 inp_2 > 9 to choose the value so that inp_2 = 9. If this still doesn't
-work for inp_1, then no other value will work for both either.
+work for inp_1, then no other value will work for both either. (And
+we know the puzzle has a solution so it will work)
 
-This strategy can be used to take any wish input sequence and correct
+This strategy can be used to take any input sequence and correct
 it so that it passes the test. So for part 1 we'll want to start with
 the highest possible input, 99999999999999, and for part 2 with the
 lowest, 11111111111111.
@@ -90,11 +91,14 @@ func solve(lines []string, inp [14]int) string {
 	for i := 0; i < 14; i++ {
 		div := getVal(lines, i, divOffset)
 		if div == 1 {
+			// we just push index on the stack, not the actual digit
+			// becase with the index we can easily access both the digit
+			// inp[j] and the parameter getVal(lines, j, addOffset)
 			stack = append(stack, i)
 		} else {
-			l := len(stack)
-			j := stack[l-1]
-			stack = stack[:l-1]
+			j := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+
 			add := getVal(lines, j, addOffset)
 			chk := getVal(lines, i, chkOffset)
 			inp[i] = inp[j] + add + chk

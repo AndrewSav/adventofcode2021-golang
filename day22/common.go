@@ -83,7 +83,7 @@ func sweep(selection []*cuboid, dimensionIndex int) int64 {
 		if dimensionIndex == 0 {
 			// last applied cuboid determines if the voxel is on or off
 			if newSelection[len(newSelection)-1].on {
-				count += intervalLength // just add the number of voxel on the line between the stop points 
+				count += intervalLength // just add the number of voxel on the line between the stop points
 			}
 		} else {
 			// get the number of on voxels from the next dimension, and multiply it on the
