@@ -30,5 +30,5 @@ For code:
 
 - Input is never validated, it is assumed to be correct
 - Tested on PC (intel i9) and Raspberry Pi
-- On the test PC each puzzle did not take more then 100 milliseconds to run
-- Downloaded puzzle texts is in the [puzzle](puzzles) folder. It is not always entirely accurate as [godown](https://github.com/mattn/godown) occasionally makes a mistake.
+- On the test PC each puzzle part did not take more then 100 milliseconds to run
+- Downloaded puzzle texts is in the [puzzles](puzzles) folder. It is not always entirely accurate as [godown](https://github.com/mattn/godown) occasionally makes a mistake.
