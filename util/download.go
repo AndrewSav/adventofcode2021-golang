@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/mattn/godown"
@@ -32,6 +33,19 @@ const cookieTemplate = `{
 }`
 
 var normalMode = os.FileMode(0644)
+
+func createDirectoryIfNotExists(path string) error {
+	dir := filepath.Dir(path)
+
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		err = os.MkdirAll(dir, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 func tryGetCookieFromFile() (string, error) {
 	data, err := os.ReadFile("cookie.txt")
@@ -90,6 +104,10 @@ func DownloadInput(cookie string, day int, inputFile string) {
 		log.Fatal(err)
 	}
 
+	err = createDirectoryIfNotExists(inputFile)
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = os.WriteFile(inputFile, body, normalMode)
 	if err != nil {
 		log.Fatal(err)
@@ -131,6 +149,10 @@ func DownloadDescriptions(cookie string) {
 		stopMarker := "</article>"
 
 		data := string(body)
+		err = createDirectoryIfNotExists(outputFile)
+		if err != nil {
+			log.Fatal(err)
+		}
 		f, err := os.Create(outputFile)
 		if err != nil {
 			log.Fatal(err)

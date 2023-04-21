@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -50,12 +49,5 @@ func main() {
 	t := template.Must(template.New("run").Parse(runTemplate))
 	if err := t.Execute(cf, data); err != nil {
 		log.Fatal(err)
-	}
-	// This is so that download input command does not fail on missing days	/
-	// TODO: This really does not belong here and should be move with the downloading code
-	for i := 1; i <= data.Days[len(data.Days)-1].Day; i++ {
-		if err := os.Mkdir(fmt.Sprintf("day%02d", i), normalMode); err != nil && !os.IsExist(err) {
-			log.Fatal(err)
-		}
 	}
 }
