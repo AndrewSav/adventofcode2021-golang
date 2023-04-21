@@ -21,7 +21,7 @@ func solve(inputFile string, consumption fuelFunc) string {
 	min, max := ss[0], ss[0]
 	// the target position has to be between min and max (inclusive)
 	// because if it is outside these bounds every single trip can be
-	// made cheaper by chosing the min (or max) target position
+	// made cheaper by choosing the min (or max) target position
 	for _, s := range ss {
 		min = util.Min(min, s)
 		max = util.Max(max, s)

@@ -9,7 +9,7 @@ type image struct {
 	infinityValue int // This is what's contained in all cells that we are not keeping track of in .data
 }
 
-// This is getting the number corrsepending to the 3x3 square
+// This is getting the number corresponding to the 3x3 square
 // centered at (x,y) as described in the puzzle
 func (im *image) GetMask(x, y int) int {
 	result := 0
@@ -22,9 +22,9 @@ func (im *image) GetMask(x, y int) int {
 	return result
 }
 
-// The algorythm runs on ever expanding square, that expand once cell each side
+// The algorithm runs on ever expanding square, that expand once cell each side
 // every time Enhance is called.
-// start is where in image that sqare starts (both x and y)
+// start is where in image that square starts (both x and y)
 // and dimension is how many cells long is that square side
 func (im *image) Enhance(alg [512]int, start, length int) int {
 	var (
@@ -77,7 +77,7 @@ func loadInput(inputFile string, cycles int) int {
 	for i := 0; i < len(imageEnhancementAlgorithm); i++ {
 		imageEnhancementAlgorithm[i] = cell(data[0][i])
 	}
-	const offset = 2 // First two lines in the file are the Image Enhancment Algorythm and a new line
+	const offset = 2 // First two lines in the file are the Image Enhancement Algorithm and a new line
 	var (
 		im           image
 		padding      = cycles + 2                     // add padding one cell for each enhancement cycle plus two-wide to account for infinite space on each side

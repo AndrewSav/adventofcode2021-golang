@@ -7,6 +7,6 @@ func Part1(inputFile string) string {
 		}, func(d *data, i int) {
 			d.depth += i
 		}, func(d *data, i int) {
-			d.hpos += i
+			d.horizontalPosition += i
 		})
 }

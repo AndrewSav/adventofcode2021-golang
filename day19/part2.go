@@ -10,7 +10,7 @@ func Part2(inputFile string) string {
 	max := 0
 	for i := 0; i < len(normalized); i++ {
 		for j := i + 1; j < len(normalized); j++ {
-			max = util.Max(max, normalized[i].offset.manhatten(normalized[j].offset))
+			max = util.Max(max, normalized[i].offset.manhattan(normalized[j].offset))
 		}
 	}
 	return fmt.Sprint(max)

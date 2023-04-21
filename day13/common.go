@@ -26,7 +26,7 @@ func removeDuplicates(points []point) []point {
 	}
 	return points[:w]
 }
-func foldx(c int, points []point) []point {
+func foldX(c int, points []point) []point {
 	for i, p := range points {
 		if p.x > c {
 			points[i].x = 2*c - p.x
@@ -35,7 +35,7 @@ func foldx(c int, points []point) []point {
 	return removeDuplicates(points)
 }
 
-func foldy(c int, points []point) []point {
+func foldY(c int, points []point) []point {
 	for i, p := range points {
 		if p.y > c {
 			points[i].y = 2*c - p.y
@@ -47,10 +47,10 @@ func foldy(c int, points []point) []point {
 func fold(fold point, points []point) (result []point) {
 	result = points
 	if fold.x != 0 {
-		result = foldx(fold.x, result)
+		result = foldX(fold.x, result)
 	}
 	if fold.y != 0 {
-		result = foldy(fold.y, result)
+		result = foldY(fold.y, result)
 	}
 	return
 }

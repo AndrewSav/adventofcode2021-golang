@@ -46,7 +46,7 @@ func (p point) dist(other point) int {
 	return (p.x-other.x)*(p.x-other.x) + (p.y-other.y)*(p.y-other.y) + (p.z-other.z)*(p.z-other.z)
 }
 
-func (p point) manhatten(other point) int {
+func (p point) manhattan(other point) int {
 	return util.Abs((p.x - other.x)) + util.Abs((p.y - other.y)) + util.Abs((p.z - other.z))
 }
 
@@ -133,7 +133,7 @@ func getNormalized(inputFile string) []scanner {
 	for len(scanners) > 0 {
 		for j := len(scanners) - 1; j >= 0; j-- {
 			for _, other := range normalized {
-				// This check is not strictly nescessary but it gives about x20 speed up
+				// This check is not strictly necessary but it gives about x20 speed up
 				// If not enough distances match up across the two scanners there is no point bothering with rotations and alignment checks
 				if !checkDistances(distances[scanners[j].index], distances[other.index]) {
 					continue

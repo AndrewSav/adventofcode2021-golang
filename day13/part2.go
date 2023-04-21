@@ -12,15 +12,15 @@ func Part2(inputFile string) string {
 		points = fold(f, points)
 	}
 	// find the bounds of the resulting "image"
-	var maxx, maxy int
+	var maxX, maxY int
 	for _, p := range points {
-		maxx = util.Max(maxx, p.x)
-		maxy = util.Max(maxy, p.y)
+		maxX = util.Max(maxX, p.x)
+		maxY = util.Max(maxY, p.y)
 	}
 	// initialize "image" array
-	plot := make([][]rune, maxy+1)
+	plot := make([][]rune, maxY+1)
 	for y := range plot {
-		plot[y] = make([]rune, maxx+1)
+		plot[y] = make([]rune, maxX+1)
 		for x := range plot[y] {
 			plot[y][x] = '.'
 		}

@@ -79,7 +79,7 @@ func sweep(selection []*cuboid, dimensionIndex int) int64 {
 		}
 
 		intervalLength := int64(stopPoints[i+1] - stopPoint)
-		// is this the last dimention to sweep (dot along a line)?
+		// is this the last dimension to sweep (dot along a line)?
 		if dimensionIndex == 0 {
 			// last applied cuboid determines if the voxel is on or off
 			if newSelection[len(newSelection)-1].on {
@@ -99,14 +99,14 @@ func solve(inputFile string, part1 bool) string {
 	data := util.ReadInput(inputFile)
 	cuboids := []*cuboid{}
 	for i, s := range data {
-		var xmin, xmax, ymin, ymax, zmin, zmax int
+		var xMin, xMax, yMin, yMax, zMin, zMax int
 		tokens := strings.Split(s, " ")
-		fmt.Sscanf(tokens[1], "x=%d..%d,y=%d..%d,z=%d..%d", &xmin, &xmax, &ymin, &ymax, &zmin, &zmax)
+		fmt.Sscanf(tokens[1], "x=%d..%d,y=%d..%d,z=%d..%d", &xMin, &xMax, &yMin, &yMax, &zMin, &zMax)
 		c := &cuboid{
 			dimensions: [3]dimension{
-				{min: zmin, max: zmax},
-				{min: ymin, max: ymax},
-				{min: xmin, max: xmax},
+				{min: zMin, max: zMax},
+				{min: yMin, max: yMax},
+				{min: xMin, max: xMax},
 			},
 			on:    tokens[0] == "on",
 			index: fmt.Sprint(i),

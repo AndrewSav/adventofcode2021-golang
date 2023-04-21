@@ -59,17 +59,17 @@ func detect(data []string) (result map[string]int) {
 
 	result[eliminate(lookup[5], (*lookup[2])[0])] = 3 // 2,3 and 5 have a segment string of 5. The only one of those that contains all segments from 1 is 3
 
-	seg := (*lookup[4])[0]              // this will represent the top left vertical segment and the middle horisontal segment
+	seg := (*lookup[4])[0]              // this will represent the top left vertical segment and the middle horizontal segment
 	for _, s := range (*lookup[2])[0] { // remove from segment string of 4 all the segments of 1
 		seg = strings.ReplaceAll(seg, string(s), "")
 	}
 
-	result[eliminate(lookup[5], seg)] = 5 // out of 2 and 5 only 5 has top left vertical segment and the middle horisontal segment
-	result[(*lookup[5])[0]] = 2           // the only remaining digit with a segement string of 5 is now 2, once we eliminated 3 and 5
+	result[eliminate(lookup[5], seg)] = 5 // out of 2 and 5 only 5 has top left vertical segment and the middle horizontal segment
+	result[(*lookup[5])[0]] = 2           // the only remaining digit with a segment string of 5 is now 2, once we eliminated 3 and 5
 
 	result[eliminate(lookup[6], (*lookup[2])[0], true)] = 6 // 0,9 and 6 have a segment string of 6. The only one of those that DOES NOT contain all segments from 1 is 6
 	result[eliminate(lookup[6], (*lookup[4])[0])] = 9       // out of 0 and 9 only 9 contains all segments from 4
-	result[(*lookup[6])[0]] = 0                             // the only remaining digit with a segement string of 6 is now 0, once we eliminated 6 and 9
+	result[(*lookup[6])[0]] = 0                             // the only remaining digit with a segment string of 6 is now 0, once we eliminated 6 and 9
 	return
 }
 

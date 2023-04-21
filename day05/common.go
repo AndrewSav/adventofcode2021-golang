@@ -39,14 +39,14 @@ func (img *myImage) drawOrthogonal(r image.Rectangle) {
 
 func (img *myImage) drawDiagonal(r image.Rectangle) {
 	if util.Abs(r.Min.Y-r.Max.Y) == util.Abs(r.Min.X-r.Max.X) { // diagonal line
-		stepx, stepy := 1, 1
+		stepX, stepY := 1, 1
 		if r.Min.Y > r.Max.Y {
-			stepy = -1
+			stepY = -1
 		}
 		if r.Min.X > r.Max.X {
-			stepx = -1
+			stepX = -1
 		}
-		for ; r.Min.X != r.Max.X; r.Min.X, r.Min.Y = r.Min.X+stepx, r.Min.Y+stepy {
+		for ; r.Min.X != r.Max.X; r.Min.X, r.Min.Y = r.Min.X+stepX, r.Min.Y+stepY {
 			img.SetGray(r.Min.X, r.Min.Y, color.Gray{img.GrayAt(r.Min.X, r.Min.Y).Y + 1}) // increment each point
 		}
 		img.SetGray(r.Min.X, r.Min.Y, color.Gray{img.GrayAt(r.Min.X, r.Min.Y).Y + 1})
@@ -61,7 +61,7 @@ func solve(inputFile string, includeDiagonal bool) string {
 		item := parseLine(l)
 		data = append(data, item) // collects all input lines in `data` array
 		// Union cannot combine "empty" rectangles (horizontal and vertical lines), so we are using Inset to make them non empty
-		bounds = bounds.Union(item.Canon().Inset(-1)) // and also determines the combined boundss of all lines
+		bounds = bounds.Union(item.Canon().Inset(-1)) // and also determines the combined bounds of all lines
 	}
 	img := newImage(bounds)
 	for _, d := range data {

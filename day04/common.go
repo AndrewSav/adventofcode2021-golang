@@ -15,8 +15,8 @@ type point struct {
 }
 
 type bingo struct {
-	columnFillcount [width]int    // count of called out numbers in each column
-	rawFillcount    [height]int   // count of called out numbers in each row
+	columnFillCount [width]int    // count of called out numbers in each column
+	rawFillCount    [height]int   // count of called out numbers in each row
 	sum             int           // total sum of all number on the board not called out so far
 	lookup          map[int]point // translates a number on the board to its coordinates
 	won             bool          // if the board is won
@@ -30,9 +30,9 @@ func (b *bingo) add(x, y, val int) { // since in go objects start empty this is 
 func (b *bingo) mark(val int) (bool, int) { // this is called every time a bingo number is called out
 	if p, ok := b.lookup[val]; ok && !b.won {
 		b.sum -= val
-		b.columnFillcount[p.x]++
-		b.rawFillcount[p.y]++
-		if b.columnFillcount[p.x] == width || b.rawFillcount[p.y] == height {
+		b.columnFillCount[p.x]++
+		b.rawFillCount[p.y]++
+		if b.columnFillCount[p.x] == width || b.rawFillCount[p.y] == height {
 			b.won = true
 			return true, b.sum * val
 		}
@@ -42,7 +42,7 @@ func (b *bingo) mark(val int) (bool, int) { // this is called every time a bingo
 
 func solve(inputFile string, firstWin bool) string {
 	lines := util.ReadInput(inputFile)
-	seq := util.AtoiSlice(strings.Split(lines[0], ",")) // numbers to call out from the first line of the imput
+	seq := util.AtoiSlice(strings.Split(lines[0], ",")) // numbers to call out from the first line of the input
 	boards := []bingo{}
 	for c := 1; c < len(lines); c++ { // creating all boards from input
 		y := (c - 1) % (height + 1)
@@ -57,7 +57,7 @@ func solve(inputFile string, firstWin bool) string {
 	}
 	lastWin := -1
 	for _, i := range seq { // now we start calling out the numbers
-		for j, _ := range boards {
+		for j := range boards {
 			if won, score := boards[j].mark(i); won {
 				if firstWin {
 					return fmt.Sprint(score)

@@ -9,7 +9,7 @@ const (
 )
 
 type explodeContext struct {
-	left  *term        // latest left const we saw (if any), to be modified by the right-adjasent exploding pair
+	left  *term        // latest left const we saw (if any), to be modified by the right-adjacent exploding pair
 	right int          // the right const of the exploded pair to be added to the next const on the right (if any)
 	level int          // current nesting level
 	stage explodeStage // indicates that we processed an exploding pair

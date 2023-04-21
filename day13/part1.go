@@ -6,6 +6,6 @@ import (
 
 func Part1(inputFile string) string {
 	points, folds := readData(inputFile)
-	// executre the first fold only and count the number of resulting points
+	// execute the first fold only and count the number of resulting points
 	return fmt.Sprint(len(fold(folds[0], points)))
 }

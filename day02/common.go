@@ -8,9 +8,9 @@ import (
 )
 
 type data struct {
-	hpos  int
-	depth int
-	aim   int //aim is only used in part 2
+	horizontalPosition int
+	depth              int
+	aim                int //aim is only used in part 2
 }
 
 type mutator func(*data, int)
@@ -33,5 +33,5 @@ func solve(inputFile string, up, down, forward mutator) string {
 			panic("unexpected code path")
 		}
 	}
-	return fmt.Sprint(data.hpos * data.depth)
+	return fmt.Sprint(data.horizontalPosition * data.depth)
 }

@@ -44,7 +44,7 @@ func solveInner(inputFile string) (int, int64) {
 				s = append(s, c)
 				continue
 			}
-			if pairs[s.Pop()] != c { // see if the closing character that we got matches the openning character that we expect
+			if pairs[s.Pop()] != c { // see if the closing character that we got matches the opening character that we expect
 				resultSyntax += syntaxScores[c]
 				broken = true
 				break

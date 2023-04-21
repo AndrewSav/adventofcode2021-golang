@@ -17,7 +17,7 @@ func (q *bucketQueue) add(v *vertex, val int) {
 	if len(*q) < bucketOffset+1 { // if the bucket is not in there yet create it and all buckets in-between
 		*q = append(*q, make([]vertex, bucketOffset+1-len(*q))...)
 	}
-	(*q)[bucketOffset].level = val                                         // for brivety, only needs to be set for new buckets in a loop inside the above "if"
+	(*q)[bucketOffset].level = val                                         // for brevity, only needs to be set for new buckets in a loop inside the above "if"
 	(*q)[bucketOffset].neighbors = append((*q)[bucketOffset].neighbors, v) //finally add the value to the bucket
 }
 
@@ -32,7 +32,7 @@ func search(entry *vertex, exit *vertex) int {
 			q = q[1:]
 		}
 		u := q[0].neighbors[0]
-		q[0].neighbors = q[0].neighbors[1:] // remove from backet
+		q[0].neighbors = q[0].neighbors[1:] // remove from bucket
 		if u == exit {
 			return dist[u]
 		}
@@ -46,22 +46,22 @@ func search(entry *vertex, exit *vertex) int {
 	}
 }
 
-func solve(inputFile string, multx, multy int) string {
+func solve(inputFile string, multiplierX, multiplierY int) string {
 	lines := util.ReadInput(inputFile)
-	data := make([]*vertex, 0, len(lines)*multy*len(lines[0])*multx)
-	for dy := 0; dy < multy; dy++ {
+	data := make([]*vertex, 0, len(lines)*multiplierY*len(lines[0])*multiplierX)
+	for dy := 0; dy < multiplierY; dy++ {
 		for y, l := range lines {
-			for dx := 0; dx < multx; dx++ {
+			for dx := 0; dx < multiplierX; dx++ {
 				for x := range l {
 					v := vertex{level: (int(l[x]-"0"[0])-1+dx+dy)%9 + 1, neighbors: make([]*vertex, 0, 2)}
-					offset := (y+dy*len(lines))*len(l)*multx + x + dx*len(l)
+					offset := (y+dy*len(lines))*len(l)*multiplierX + x + dx*len(l)
 					if x+dx*len(l) > 0 {
 						data[offset-1].neighbors = append(data[offset-1].neighbors, &v)
 						v.neighbors = append(v.neighbors, data[offset-1])
 					}
 					if y+dy*len(lines) > 0 {
-						data[offset-len(l)*multx].neighbors = append(data[offset-len(l)*multx].neighbors, &v)
-						v.neighbors = append(v.neighbors, data[offset-len(l)*multx])
+						data[offset-len(l)*multiplierX].neighbors = append(data[offset-len(l)*multiplierX].neighbors, &v)
+						v.neighbors = append(v.neighbors, data[offset-len(l)*multiplierX])
 					}
 					data = append(data, &v)
 				}

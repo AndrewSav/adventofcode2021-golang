@@ -92,7 +92,7 @@ func solve(lines []string, inp [14]int) string {
 		div := getVal(lines, i, divOffset)
 		if div == 1 {
 			// we just push index on the stack, not the actual digit
-			// becase with the index we can easily access both the digit
+			// because with the index we can easily access both the digit
 			// inp[j] and the parameter getVal(lines, j, addOffset)
 			stack = append(stack, i)
 		} else {

@@ -20,7 +20,7 @@ func (o octopi) cycle() int {
 	for _, f := range flashes { // then execute each collect flash, add number of flashed points to count
 		count += o.flash(f.x, f.y)
 	}
-	for y, ll := range o { // finally reset flahed point back to zero
+	for y, ll := range o { // finally reset flashed point back to zero
 		for x, l := range ll {
 			if l > 9 {
 				o[y][x] = 0

@@ -12,18 +12,18 @@ type state struct {
 	turn     int   // current turn number
 }
 
-// This is the number of forks for each possible sum in three consequtive rolls
+// This is the number of forks for each possible sum in three consecutive rolls
 // e.g. you can get the sum of 3 in a single universe: 1,1,1,
 // but you can get sum of 4 in 3 universes: 2,1,1; 1,2,1 and 1,1,2, etc
 var weights = map[int]int{3: 1, 4: 3, 5: 6, 6: 7, 7: 6, 8: 3, 9: 1}
 
-// j is the initial player position (zero based for convinience)
+// j is the initial player position (zero based for convenience)
 // it returns two maps, the map key is the turn number
 // values in the first map are the number of forks that win on that turn
 // values in the second map are the number of forks that do not win on that turn
 // for simplicity in this function we only consider one player's rolls and
 // completely ignoring forks from the other player, we account for them later
-// the number of forks is multipicative and order in which players roll does not matter
+// the number of forks is multiplicative and order in which players roll does not matter
 // for the number of forks (it does matter for the win condition) it will always "add up"
 // to the same number given each individual player's forks
 func doTheNumbers(j int) (map[int]int64, map[int]int64) {

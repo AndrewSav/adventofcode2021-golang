@@ -10,10 +10,11 @@ var final state   // This is the final amphipod arrangement we are aiming to ach
 
 // Data structure based on https://github.com/devries/advent_of_code_2021/blob/main/day23_p1/main.go
 // 01 2 3 4 56 hallway
-//   0 1 2 3   room
-//   0 1 2 3   room
-//   0 1 2 3   room
-//   0 1 2 3   room
+//
+//	0 1 2 3   room
+//	0 1 2 3   room
+//	0 1 2 3   room
+//	0 1 2 3   room
 type state struct {
 	hallway [7]rune    // out 11 actual hallway positions amphipod can only stay in 7, since cannot stay in front of the 4 rooms
 	room    [4][4]rune // 4 rooms, 4 slots  each, for Part 1 only [4][2]rune are used which is 4 rooms, 2 slots each
@@ -22,7 +23,7 @@ type state struct {
 var weights = map[rune]int{'A': 1, 'B': 10, 'C': 100, 'D': 1000}
 
 // The next two lines are used to calculate horizontal distances between two amphipod positions
-// translating index in state into x coorddiate (note this is a 0-based to 1-based conversion)
+// translating index in state into x coordinate (note this is a 0-based to 1-based conversion)
 var hallwayToX = []int{1, 2, 4, 6, 8, 10, 11}
 var roomToX = []int{3, 5, 7, 9}
 
@@ -43,13 +44,13 @@ func getDistance(hallway, room, roomSlot int) int {
 	return util.Abs(hallwayToX[hallway]-roomToX[room]) + roomSlot + 1
 }
 
-func getRoomToRoomDistance(room, roomSlot, otherRoom, otherroomSlot int) int {
-	return util.Abs(room-otherRoom)*2 + roomSlot + 1 + otherroomSlot + 1
+func getRoomToRoomDistance(room, roomSlot, otherRoom, otherRoomSlot int) int {
+	return util.Abs(room-otherRoom)*2 + roomSlot + 1 + otherRoomSlot + 1
 }
 
 // Room is ready if it is either empty or contains
 // amphipods of only the correct destination type (and not full)
-// Return the mumber of deepest empty slot to occoupy
+// Return the number of deepest empty slot to occupy
 func (s state) isRoomReady(room int) int {
 	for i := roomSlots - 1; i >= 0; i-- {
 		x := s.room[room][i]
@@ -63,7 +64,7 @@ func (s state) isRoomReady(room int) int {
 	return -2 // room is already settled
 }
 
-// Check that all hallway postion an amphipod will need to occupy
+// Check that all hallway position an amphipod will need to occupy
 // while moving from room to room are not already occupied
 func (s state) canMoveBetweenRooms(room, otherRoom int) bool {
 	if room > otherRoom {
@@ -77,17 +78,17 @@ func (s state) canMoveBetweenRooms(room, otherRoom int) bool {
 	return true
 }
 
-// Check that all hallway postion an amphipod will need to occupy
-// while moving from hallwat to room or the other way around are not already occupied
+// Check that all hallway position an amphipod will need to occupy
+// while moving from hallway to room or the other way around are not already occupied
 func (s state) canMoveBetweenHallwayAndRoom(hallway, room int) bool {
 	target := hallwayToRoom[hallway][room]
 	if target == hallway { // nothing in between so can move
 		return true
 	}
-	// skip checking statring (moving from hallway to a room)
+	// skip checking stating (moving from hallway to a room)
 	// or destination (moving from a room to hallway) position:
-	// starting postion is occupied by the amphipod so no point checking
-	// and destination postions is already checked by the time this function is called
+	// starting position is occupied by the amphipod so no point checking
+	// and destination positions is already checked by the time this function is called
 	if target > hallway {
 		hallway++ // moving from left to right
 	} else {
@@ -133,7 +134,7 @@ func (s state) getAllPossibleMoves() (result []Item) {
 					break // we are already settled
 				}
 			}
-			// check if we can move directly to the desination room without stopping at the hallway
+			// check if we can move directly to the destination room without stopping at the hallway
 			if destinationSlot := s.isRoomReady(destinationRoom); destinationSlot >= 0 && s.canMoveBetweenRooms(room, destinationRoom) {
 				new := s
 				new.room[room][slot] = 0
