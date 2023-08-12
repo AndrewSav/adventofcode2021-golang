@@ -4,7 +4,6 @@ import (
 	"aoc2021/util"
 	"fmt"
 	"sort"
-	"strconv"
 	"strings"
 )
 
@@ -18,7 +17,7 @@ type dimension struct {
 type cuboid struct {
 	dimensions [3]dimension
 	on         bool   // mode: true if "on", false if "off"
-	index      string // this is used for memoisation later
+	index      string // this is used for memoisation, it is faster to store it as string so we do not need to convert each time it's used
 }
 
 // returns ordered list of points where to stop while sweeping
@@ -39,12 +38,13 @@ func getStopPoints(selection []*cuboid, dimensionIndex int) (stopPoints []int) {
 }
 
 // for memoisation we need to convert array of pointers to something that we can use in a map key, such as a string
+// I tried to use xxhash here instead, it gave about 10% improvement at the cost of introducing 3-rd party dependency
 func getSelectionKey(selection []*cuboid, dimensionIndex int) string {
 	var b strings.Builder
 	for _, v := range selection {
 		b.WriteString(v.index + "|")
 	}
-	b.WriteString(strconv.Itoa(dimensionIndex))
+	b.WriteString(fmt.Sprint(dimensionIndex))
 	return b.String()
 }
 
@@ -64,6 +64,8 @@ func sweep(selection []*cuboid, dimensionIndex int) int64 {
 		stopPoints = getStopPoints(selection, dimensionIndex)
 	)
 
+	// we are looping through intervals between stop points so "-1"
+	// this is know as "fencepost issue"
 	for i := 0; i < len(stopPoints)-1; i++ {
 		stopPoint := stopPoints[i]
 		// filter out cuboids that do not include the current stop point
@@ -74,6 +76,9 @@ func sweep(selection []*cuboid, dimensionIndex int) int64 {
 			}
 		}
 
+		// the "exit" stop point of a cuboid is just outside of the cuboid so it is possible
+		// that it belongs to no cuboids in the current selection. This means we are now on an
+		// interval that is not inside of any cuboid
 		if len(newSelection) == 0 {
 			continue
 		}
