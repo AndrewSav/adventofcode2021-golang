@@ -2,12 +2,12 @@ package day23
 
 // https://pkg.go.dev/container/heap#example-package-PriorityQueue
 
-type Item struct {
+type PriorityQueueItem struct {
 	value    state
 	priority int
 }
 
-type PriorityQueue []Item
+type PriorityQueue []PriorityQueueItem
 
 func (pq PriorityQueue) Len() int { return len(pq) }
 
@@ -20,7 +20,7 @@ func (pq PriorityQueue) Swap(i, j int) {
 }
 
 func (pq *PriorityQueue) Push(x any) {
-	item := x.(Item)
+	item := x.(PriorityQueueItem)
 	*pq = append(*pq, item)
 }
 

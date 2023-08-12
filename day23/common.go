@@ -107,7 +107,7 @@ func (s state) canMoveBetweenHallwayAndRoom(hallway, room int) bool {
 	return true
 }
 
-func (s state) getAllPossibleMoves() (result []Item) {
+func (s state) getAllPossibleMoves() (result []PriorityQueueItem) {
 	for hallway, amphipod := range s.hallway { // for all hallway spots
 		if amphipod == 0 {
 			continue
@@ -117,32 +117,33 @@ func (s state) getAllPossibleMoves() (result []Item) {
 			new := s
 			new.hallway[hallway] = 0
 			new.room[destinationRoom][destinationSlot] = amphipod
-			result = append(result, Item{new, weights[amphipod] * getDistance(hallway, destinationRoom, destinationSlot)})
+			result = append(result, PriorityQueueItem{new, weights[amphipod] * getDistance(hallway, destinationRoom, destinationSlot)})
 		}
 	}
 	for room, r := range s.room { // for all rooms
 		for slot, amphipod := range r { // for all slots in the room
 			if amphipod == 0 {
+				// this also takes care of only two slots per room (part 1) situation
 				continue
 			}
 			// once we found first occupied spot we won't need to check any deeper in the room
-			// the current amphipod is blocking the rest, that's why all the code path in the
+			// the current amphipod is blocking the rest, that's why all the code paths in the
 			// loop below end with break
-			destinationRoom := int(amphipod - 'A') // this is where the amphipod wants to move based on it's kind.
-			if destinationRoom == room {
-				// if the room is not ready this amphipod needs to move out
-				// to let amphipods behind pass through
-				if s.isRoomReady(destinationRoom) != -1 {
-					break // we are already settled
-				}
+			destinationRoom := int(amphipod - 'A') // this is where the amphipod wants to move based on it's kind
+			if destinationRoom == room && s.isRoomReady(destinationRoom) != -1 {
+				// if the amphipod desitnation room is current room and is ready or settled
+				// this amphipod is already where it wants to be and won't move
+				break
+				// if it's the destination room but not ready, the amphiod will have to move
+				// out to get those behind it to pass through
 			}
 			// check if we can move directly to the destination room without stopping at the hallway
 			if destinationSlot := s.isRoomReady(destinationRoom); destinationSlot >= 0 && s.canMoveBetweenRooms(room, destinationRoom) {
 				new := s
 				new.room[room][slot] = 0
 				new.room[destinationRoom][destinationSlot] = amphipod
-				result = append(result, Item{new, weights[amphipod] * getRoomToRoomDistance(room, slot, destinationRoom, destinationSlot)})
-				break // if we can go strait to the destination, let's not waste time on other possibilities
+				result = append(result, PriorityQueueItem{new, weights[amphipod] * getRoomToRoomDistance(room, slot, destinationRoom, destinationSlot)})
+				break // if we can go strait to the destination, let's not waste time on checking hallway destinations
 			}
 			// let's check all the possible hallway destination spots
 			for targetHallway, h := range s.hallway {
@@ -153,7 +154,7 @@ func (s state) getAllPossibleMoves() (result []Item) {
 					new := s
 					new.room[room][slot] = 0
 					new.hallway[targetHallway] = amphipod
-					result = append(result, Item{new, weights[amphipod] * getDistance(targetHallway, room, slot)})
+					result = append(result, PriorityQueueItem{new, weights[amphipod] * getDistance(targetHallway, room, slot)})
 				}
 			}
 			break
@@ -167,10 +168,10 @@ func (s state) getAllPossibleMoves() (result []Item) {
 func solve(start state) int {
 	dist := map[state]int{start: 0}
 	q := make(PriorityQueue, 1)
-	q[0] = Item{start, 0}
+	q[0] = PriorityQueueItem{start, 0}
 	heap.Init(&q)
 	for {
-		u := heap.Pop(&q).(Item)
+		u := heap.Pop(&q).(PriorityQueueItem)
 		if u.value == final {
 			return dist[u.value]
 		}
@@ -178,7 +179,7 @@ func solve(start state) int {
 			alt := dist[u.value] + v.priority
 			if i, ok := dist[v.value]; !ok || alt < i {
 				dist[v.value] = alt
-				heap.Push(&q, Item{v.value, alt})
+				heap.Push(&q, PriorityQueueItem{v.value, alt})
 			}
 		}
 	}
