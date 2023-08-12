@@ -93,7 +93,7 @@ func checkDistances(other map[int]int, current map[int]int) bool {
 	count := 0
 	for i, v := range current {
 		if j, ok := other[i]; ok {
-			count += util.Min(j, v)
+			count += min(j, v)
 			if count >= distanceThreshold {
 				return true
 			}

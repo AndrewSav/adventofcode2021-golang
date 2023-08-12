@@ -73,5 +73,5 @@ func Part2(inputFile string) string {
 		secondWinsCount += winSecond[i] * loseFirst[i]
 	}
 
-	return fmt.Sprint(util.Max(firstWinsCount, secondWinsCount))
+	return fmt.Sprint(max(firstWinsCount, secondWinsCount))
 }

@@ -1,20 +1,16 @@
 package day14
 
-import (
-	"aoc2021/util"
-)
-
 // This implements how the score is calculated
 // according to the puzzle description
 func getScore[T int | int64](scores map[byte]T) T {
-	var min, max T
+	var leastCommon, mostCommon T
 	for _, v := range scores {
-		min, max = v, v
+		leastCommon, mostCommon = v, v
 		break
 	}
 	for _, v := range scores {
-		max = util.Max(max, v)
-		min = util.Min(min, v)
+		mostCommon = max(mostCommon, v)
+		leastCommon = min(leastCommon, v)
 	}
-	return max - min
+	return mostCommon - leastCommon
 }

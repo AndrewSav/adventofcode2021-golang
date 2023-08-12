@@ -14,8 +14,8 @@ func Part2(inputFile string) string {
 	// find the bounds of the resulting "image"
 	var maxX, maxY int
 	for _, p := range points {
-		maxX = util.Max(maxX, p.x)
-		maxY = util.Max(maxY, p.y)
+		maxX = max(maxX, p.x)
+		maxY = max(maxY, p.y)
 	}
 	// initialize "image" array
 	plot := make([][]rune, maxY+1)

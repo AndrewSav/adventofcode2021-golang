@@ -1,7 +1,6 @@
 package day16
 
 import (
-	"aoc2021/util"
 	"fmt"
 )
 
@@ -30,13 +29,13 @@ func (o *operator) getValue() int64 {
 	case 2:
 		result := c[0]
 		for _, v := range c {
-			result = util.Min(result, v)
+			result = min(result, v)
 		}
 		return result
 	case 3:
 		result := c[0]
 		for _, v := range c {
-			result = util.Max(result, v)
+			result = max(result, v)
 		}
 		return result
 	case 5:

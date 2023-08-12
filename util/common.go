@@ -13,20 +13,6 @@ func Abs[T int | int32 | int64](x T) T {
 	return x
 }
 
-func Min[T int | int32 | int64](a, b T) T {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func Max[T int | int32 | int64](a, b T) T {
-	if a > b {
-		return a
-	}
-	return b
-}
-
 func MustAtoi(s string) int {
 	if i, err := strconv.ParseInt(strings.Trim(s, " "), 10, 32); err != nil {
 		log.Fatalf("cannot convert string '%s' to a number: %v", s, err)

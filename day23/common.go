@@ -97,8 +97,8 @@ func (s state) canMoveBetweenHallwayAndRoom(hallway, room int) bool {
 		hallway-- // moving from right to left
 	}
 
-	from := util.Min(hallway, target)
-	to := util.Max(hallway, target)
+	from := min(hallway, target)
+	to := max(hallway, target)
 	for i := from; i <= to; i++ {
 		if s.hallway[i] != 0 {
 			return false
