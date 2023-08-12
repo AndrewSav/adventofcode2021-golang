@@ -2,7 +2,6 @@ package day24
 
 import (
 	"aoc2021/util"
-	"fmt"
 	"strings"
 )
 
@@ -28,12 +27,12 @@ never 26 or over. When div = 1, chk is always greater than 9, so
 `z % 26 + chk == inp` check is always false in this case. The above block of code
 can thus be rewritten this way:
 
-if div == 1 {
+if div == 1 { // push
   z = z*26 + inp + add;
 } else {
-  if (z % 26 + chk == inp) {
+  if (z % 26 + chk == inp) { // pop
     z = z / 26;
-  } else {
+  } else { // we do not want this code path
     z = (z / 26)*26 + inp + add;
   }
 }
@@ -43,35 +42,25 @@ each block with div == 1 adds a base-26 digit to z, as described above, the only
 final result can come to zero is if each block with div == 26 removes one digit. For
 that to happen `z % 26 + chk == inp` must be true.
 
-To arrange this start with an arbitrary array of 14 inputs denoted
-by [inp_0, inp_1, ..., inp_13]. Let shf be 0 if div is 1 and be 1 if div is 26.
-If the first two instruction blocks have shf_0 == 0 and shf_1 == 0 then after
-the first two inputs two digit will have been pushed to the stack:
+To arrange this let's break up all 14 block on pairs, where the first block in the pair
+(denoted by index j) pushes an input digit (denoted ny inp_j) and the second block
+(denoted by index i) in the pair we want to pop. Since we have exactly 7 of each they will
+nicely pair up. In order for `z % 26 + chk == inp` to hold, the following should be true:
 
-    z_stack = [inp_0 + add_0, inp_1 + add_1]
+        z.last_digit + chk_i == inp_i
+    =>  inp_j + add_j + chk_i == inp_i
+    =>  inp_i - inp_j == add_j + chk_i
 
-If then shf_2 == 1 we want inp_2 to have a value that would cause the last digit to pop.
-The last digit is popped if
+add_j and chk_i is given to us by the procesing blocks as described above, and inp_j and inp_i
+we can manipulate. add_j + chk_i can be either negative or non negative, let's consider the
+non-negative case. If we want the min result we should set inp_j to 1 and inp_i to 1 + add_j + chk_i,
+note that this will never go over 9 because otherwise the puzzle would have no solution. If we
+want the max result, we should set inp_i to 9 then, and inp_j to 9 - (add_j + chk_i).
 
-        z.last_digit + chk_2 == inp_2
-    =>  inp_1 + add_1 + chk_2 == inp_2
+If add_j + chk_i is negative, we simply use the same logic above with abs(add_j + chk_i) and then swap
+inp_i and inp_j.
 
-So we changed inp_2 to be  (inp_2 = inp_1 + add_1 + chk_2). It can now happen that the
-condition 1 <= inp_2 <= 9 is violated. In this case we can add an
-arbitrary value to inp_2 to restore this condition. We will need to
-add the same value to inp_1 too in order to maintain the previous
-equality. We need to be careful that after these adjustments we also
-maintain 1 <= inp_1 <= 9. The least we can do is for cases where
-inp_2 < 1 to choose the value so that inp_2 = 1 and for cases with
-inp_2 > 9 to choose the value so that inp_2 = 9. If this still doesn't
-work for inp_1, then no other value will work for both either. (And
-we know the puzzle has a solution so it will work)
-
-This strategy can be used to take any input sequence and correct
-it so that it passes the test. So for part 1 we'll want to start with
-the highest possible input, 99999999999999, and for part 2 with the
-lowest, 11111111111111.
-
+Once we sorted out all the 7 pairs we get our final 14 digit number.
 */
 
 // line numbers with the (div, chk, add) parameters.
@@ -86,35 +75,38 @@ func getVal(lines []string, index, offset int) int {
 	return util.MustAtoi(strings.Split(lines[index*subLen+offset], " ")[2])
 }
 
-func solve(lines []string, inp [14]int) string {
+func solve(lines []string, max bool) string {
+	inp := [14]rune{}
 	stack := []int{}
 	for i := 0; i < 14; i++ {
 		div := getVal(lines, i, divOffset)
 		if div == 1 {
-			// we just push index on the stack, not the actual digit
-			// because with the index we can easily access both the digit
-			// inp[j] and the parameter getVal(lines, j, addOffset)
 			stack = append(stack, i)
 		} else {
+			// j is the index where we pushed the number currently (i) being popped
 			j := stack[len(stack)-1]
 			stack = stack[:len(stack)-1]
 
-			add := getVal(lines, j, addOffset)
-			chk := getVal(lines, i, chkOffset)
-			inp[i] = inp[j] + add + chk
-			if inp[i] > 9 {
-				inp[j] = inp[j] - (inp[i] - 9)
-				inp[i] = 9
+			// expected difference between inp[i] - inp[j]
+			diff := getVal(lines, j, addOffset) + getVal(lines, i, chkOffset)
+			if max {
+				// if we are looking for max, one of the two digits will be 9
+				inp[i] = '9'
+				// and the other will be |diff| less
+				inp[j] = inp[i] - rune(util.Abs(diff))
+			} else {
+				// if we are looking for min, one of the two digits will be 1
+				inp[j] = '1'
+				// and the other will be |diff| more
+				inp[i] = inp[j] + rune(util.Abs(diff))
 			}
-			if inp[i] < 1 {
-				inp[j] = inp[j] + (1 - inp[i])
-				inp[i] = 1
+			// what we just did above keeps inp[j] <= inp[i]
+			// swap the digits around to maintain inp[i] - inp[j] = add + chk
+			// inp[i] should be less than inp[j] if add + chk is negative
+			if diff < 0 {
+				inp[i], inp[j] = inp[j], inp[i]
 			}
 		}
 	}
-	var sb strings.Builder
-	for _, b := range inp {
-		fmt.Fprintf(&sb, "%d", b)
-	}
-	return sb.String()
+	return string(inp[:])
 }

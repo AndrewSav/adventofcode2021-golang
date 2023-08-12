@@ -5,6 +5,5 @@ import (
 )
 
 func Part2(inputFile string) string {
-	inp := [14]int{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-	return solve(util.ReadInput(inputFile), inp)
+	return solve(util.ReadInput(inputFile), false)
 }
