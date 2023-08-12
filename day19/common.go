@@ -132,6 +132,7 @@ func getNormalized(inputFile string) []scanner {
 	scanners = scanners[1:]
 	for len(scanners) > 0 {
 		for j := len(scanners) - 1; j >= 0; j-- {
+			// looking for a normalized scanner this scanner can align with
 			for _, other := range normalized {
 				// This check is not strictly necessary but it gives about x20 speed up
 				// If not enough distances match up across the two scanners there is no point bothering with rotations and alignment checks
