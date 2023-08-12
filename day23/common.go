@@ -8,13 +8,15 @@ import (
 var roomSlots int // Part 1 has 2 slots in each room and Part 2 has 4
 var final state   // This is the final amphipod arrangement we are aiming to achieve
 
-// Data structure based on https://github.com/devries/advent_of_code_2021/blob/main/day23_p1/main.go
-// 01 2 3 4 56 hallway
-//
-//	0 1 2 3   room
-//	0 1 2 3   room
-//	0 1 2 3   room
-//	0 1 2 3   room
+/*
+Data structure based on https://github.com/devries/advent_of_code_2021/blob/main/day23_p1/main.go
+01 2 3 4 56 hallway
+  0 1 2 3   room
+  0 1 2 3   room
+  0 1 2 3   room
+  0 1 2 3   room
+*/
+
 type state struct {
 	hallway [7]rune    // out 11 actual hallway positions amphipod can only stay in 7, since cannot stay in front of the 4 rooms
 	room    [4][4]rune // 4 rooms, 4 slots  each, for Part 1 only [4][2]rune are used which is 4 rooms, 2 slots each
@@ -85,7 +87,7 @@ func (s state) canMoveBetweenHallwayAndRoom(hallway, room int) bool {
 	if target == hallway { // nothing in between so can move
 		return true
 	}
-	// skip checking stating (moving from hallway to a room)
+	// skip checking starting (moving from hallway to a room)
 	// or destination (moving from a room to hallway) position:
 	// starting position is occupied by the amphipod so no point checking
 	// and destination positions is already checked by the time this function is called
